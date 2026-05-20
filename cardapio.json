@@ -1,0 +1,157 @@
+{
+  "loja": {
+    "nome": "Turbo Cookies",
+    "slogan": "Cookies artesanais feitos com amor",
+    "whatsapp": "5554999999999",
+    "cidade": "Guaporé/RS",
+    "instagram": "@turbocookies",
+    "horario": "Ter a Dom, 14h às 21h"
+  },
+  "categorias": [
+    {
+      "id": 1,
+      "nome": "Cookies Clássicos",
+      "ordem": 1,
+      "produtos": [
+        {
+          "id": 1,
+          "nome": "Cookie Chocolate",
+          "descricao": "Cookie recheado com gotas de chocolate belga. Crocante por fora, macio por dentro.",
+          "preco_base": 8.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 8.90 },
+            { "nome": "Caixa 6", "preco": 48.00 },
+            { "nome": "Caixa 12", "preco": 90.00 }
+          ]
+        },
+        {
+          "id": 2,
+          "nome": "Cookie Nutella",
+          "descricao": "Recheio generoso de Nutella com borda crocante — irresistível!",
+          "preco_base": 9.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 9.90 },
+            { "nome": "Caixa 6", "preco": 54.00 },
+            { "nome": "Caixa 12", "preco": 100.00 }
+          ]
+        },
+        {
+          "id": 3,
+          "nome": "Cookie M&M's",
+          "descricao": "Cookie colorido recheado com M&M's. Alegria em cada mordida!",
+          "preco_base": 8.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 8.90 },
+            { "nome": "Caixa 6", "preco": 48.00 },
+            { "nome": "Caixa 12", "preco": 90.00 }
+          ]
+        },
+        {
+          "id": 4,
+          "nome": "Cookie Amendoim",
+          "descricao": "Massa com pasta de amendoim e pedaços crocantes. Um clássico americano.",
+          "preco_base": 8.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 8.90 },
+            { "nome": "Caixa 6", "preco": 48.00 },
+            { "nome": "Caixa 12", "preco": 90.00 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nome": "Cookies Especiais",
+      "ordem": 2,
+      "produtos": [
+        {
+          "id": 5,
+          "nome": "Cookie Red Velvet",
+          "descricao": "Massa vermelha com cream cheese cremoso — elegante e delicioso.",
+          "preco_base": 11.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 11.90 },
+            { "nome": "Caixa 4", "preco": 44.00 }
+          ]
+        },
+        {
+          "id": 6,
+          "nome": "Cookie Duplo Chocolate",
+          "descricao": "Massa de cacau, recheio triplo de chocolate. Para os verdadeiros fãs!",
+          "preco_base": 12.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 12.90 },
+            { "nome": "Caixa 4", "preco": 48.00 }
+          ]
+        },
+        {
+          "id": 7,
+          "nome": "Cookie Churros",
+          "descricao": "Canela, doce de leite e açúcar cristal — sabor churros autêntico.",
+          "preco_base": 10.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 10.90 },
+            { "nome": "Caixa 6", "preco": 60.00 }
+          ]
+        },
+        {
+          "id": 8,
+          "nome": "Cookie Oreo",
+          "descricao": "Pedaços de Oreo na massa e no recheio. Combinação imbatível.",
+          "preco_base": 11.90,
+          "foto": null,
+          "variacoes": [
+            { "nome": "Unitário", "preco": 11.90 },
+            { "nome": "Caixa 4", "preco": 44.00 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "Bebidas",
+      "ordem": 3,
+      "produtos": [
+        {
+          "id": 9,
+          "nome": "Refrigerante Lata",
+          "descricao": "Coca-Cola, Pepsi, Guaraná ou Fanta — gelado e refrescante.",
+          "preco_base": 7.00,
+          "foto": null,
+          "variacoes": [
+            { "nome": "350ml", "preco": 7.00 }
+          ]
+        },
+        {
+          "id": 10,
+          "nome": "Suco Natural",
+          "descricao": "Laranja, limão ou maracujá. Feito na hora, sem adição de açúcar.",
+          "preco_base": 9.00,
+          "foto": null,
+          "variacoes": [
+            { "nome": "300ml", "preco": 9.00 },
+            { "nome": "500ml", "preco": 13.00 }
+          ]
+        },
+        {
+          "id": 11,
+          "nome": "Água Mineral",
+          "descricao": "Água mineral sem gás, gelada.",
+          "preco_base": 4.00,
+          "foto": null,
+          "variacoes": [
+            { "nome": "500ml", "preco": 4.00 }
+          ]
+        }
+      ]
+    }
+  ],
+  "atualizado_em": "2026-05-20T00:00:00"
+}

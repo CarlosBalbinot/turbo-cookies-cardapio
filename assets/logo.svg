@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Cookie base -->
+  <circle cx="100" cy="100" r="96" fill="#C8965A"/>
+  <circle cx="100" cy="100" r="90" fill="#D4A46A" opacity="0.6"/>
+  <!-- Texture lines -->
+  <path d="M40 100 Q100 60 160 100" stroke="#B8824A" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M40 100 Q100 140 160 100" stroke="#B8824A" stroke-width="2" fill="none" opacity="0.5"/>
+  <!-- Chocolate chips -->
+  <ellipse cx="68" cy="76" rx="11" ry="10" fill="#3D1F08"/>
+  <ellipse cx="132" cy="72" rx="11" ry="10" fill="#3D1F08"/>
+  <ellipse cx="100" cy="108" rx="12" ry="10" fill="#3D1F08"/>
+  <ellipse cx="62" cy="122" rx="9" ry="8" fill="#3D1F08"/>
+  <ellipse cx="138" cy="118" rx="9" ry="8" fill="#3D1F08"/>
+  <ellipse cx="98" cy="55" rx="8" ry="7" fill="#3D1F08"/>
+  <ellipse cx="114" cy="148" rx="7" ry="6" fill="#3D1F08"/>
+  <!-- Shine dots on chips -->
+  <circle cx="64" cy="73" r="3" fill="#6B3A18" opacity="0.8"/>
+  <circle cx="128" cy="69" r="3" fill="#6B3A18" opacity="0.8"/>
+  <circle cx="96" cy="105" r="3" fill="#6B3A18" opacity="0.8"/>
+  <!-- Cookie edge highlight -->
+  <circle cx="100" cy="100" r="96" fill="none" stroke="#E8B87A" stroke-width="2" opacity="0.4"/>
+</svg>

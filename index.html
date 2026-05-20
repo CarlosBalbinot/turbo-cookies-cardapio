@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cardápio da Turbo Cookies — cookies artesanais feitos com amor em Guaporé/RS">
+  <meta name="theme-color" content="#E94560">
+  <meta property="og:title" content="Turbo Cookies — Cardápio Digital">
+  <meta property="og:description" content="Cookies artesanais feitos com amor. Peça pelo WhatsApp!">
+  <meta property="og:type" content="website">
+  <title>Turbo Cookies — Cardápio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Estado de carregamento ─────────────────────────────────────────── -->
+  <div id="loading" class="loading-state" role="status" aria-live="polite">
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <p>Carregando cardápio...</p>
+  </div>
+
+  <!-- ── Conteúdo principal (oculto até carregar) ──────────────────────── -->
+  <div id="conteudo" hidden>
+
+    <!-- Hero -->
+    <section id="hero" class="hero" aria-label="Apresentação">
+      <div class="hero-inner">
+        <div class="logo-wrap">
+          <img src="assets/logo.svg" alt="Turbo Cookies" class="logo-img" id="logo-img">
+        </div>
+        <h1 id="hero-nome" class="hero-nome">Turbo Cookies</h1>
+        <p id="hero-slogan" class="hero-slogan"></p>
+        <p id="hero-horario" class="hero-horario"></p>
+        <a href="#cardapio" class="btn-hero">🍪 Ver Cardápio</a>
+      </div>
+    </section>
+
+    <!-- Nav de categorias (fica fixo no topo ao rolar) -->
+    <nav id="nav-categorias" class="nav-categorias" aria-label="Categorias">
+      <div id="pills-wrap" class="pills-wrap" role="list"></div>
+    </nav>
+
+    <!-- Grid de produtos -->
+    <main id="cardapio" class="cardapio-main" aria-label="Produtos">
+      <!-- preenchido pelo script.js -->
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer" aria-label="Informações da loja">
+      <div class="footer-inner">
+        <div class="footer-logo-mini">🍪</div>
+        <p id="footer-nome" class="footer-nome-loja"></p>
+        <div class="footer-grid">
+          <span id="footer-instagram" class="footer-item hidden"></span>
+          <span id="footer-cidade" class="footer-item hidden"></span>
+          <span id="footer-horario" class="footer-item hidden"></span>
+        </div>
+        <p class="footer-copy">Feito com ❤️ em Guaporé/RS</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ── Carrinho flutuante ─────────────────────────────────────────────── -->
+  <button id="carrinho-float" class="carrinho-float hidden"
+          onclick="abrirCarrinho()" aria-label="Ver carrinho">
+    <span class="carrinho-icone" aria-hidden="true">🛒</span>
+    <span id="carrinho-texto">0 itens</span>
+    <span class="carrinho-seta" aria-hidden="true">›</span>
+  </button>
+
+  <!-- ── Modal do carrinho ─────────────────────────────────────────────── -->
+  <div id="modal-carrinho" class="modal-overlay hidden"
+       role="dialog" aria-modal="true" aria-label="Seu pedido"
+       onclick="fecharCarrinhoOverlay(event)">
+    <div class="modal-box">
+
+      <div class="modal-header">
+        <h2 class="modal-titulo">🛒 Seu Pedido</h2>
+        <button class="btn-fechar" onclick="fecharCarrinho()" aria-label="Fechar">✕</button>
+      </div>
+
+      <div id="lista-carrinho" class="lista-carrinho" role="list"></div>
+
+      <div class="modal-footer">
+        <div class="total-row">
+          <span class="total-label">Total estimado</span>
+          <span class="total-valor" id="total-valor">R$ 0,00</span>
+        </div>
+        <p class="total-aviso">* Taxas de entrega não incluídas</p>
+        <button class="btn-enviar-pedido" onclick="enviarPedido()">
+          Enviar pelo WhatsApp 🚀
+        </button>
+        <button class="btn-limpar" onclick="limparCarrinho()">Limpar carrinho</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
