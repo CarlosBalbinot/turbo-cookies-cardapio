@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Start-Process *)",
+      "PowerShell(Start-Process \"D:\\\\Estudos - VSC\\\\TurboCookiesCardapio\\\\index.html\")"
+    ]
+  }
+}

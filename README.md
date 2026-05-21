@@ -135,12 +135,12 @@ Abra-o em qualquer editor de texto e siga a estrutura:
 No arquivo `cardapio.json`, altere o campo `whatsapp` em `loja`:
 
 ```json
-"whatsapp": "5554999999999"
+"whatsapp": "5554996435079"
 ```
 
 - **Formato:** código do país + DDD + número, sem espaços ou traços
 - **Brasil:** `55` + DDD (2 dígitos) + número (9 dígitos)
-- **Exemplo Guaporé/RS:** `5554999999999`
+- **Exemplo Guaporé/RS:** `5554996435079`
 
 ---
 
@@ -162,10 +162,8 @@ turbo-cookies-cardapio/
 
 ## Integração com o sistema de gestão
 
-Este repositório é atualizado automaticamente pelo sistema de gestão desktop (**Fase 12**).  
+Este repositório é atualizado automaticamente pelo sistema de gestão desktop 
 O sistema exporta o `cardapio.json` com todos os produtos ativos e faz push para este repositório via GitHub API.
-
-Para publicar manualmente, use o botão **"Publicar Cardápio"** no sistema de gestão (em desenvolvimento).
 
 ---
 

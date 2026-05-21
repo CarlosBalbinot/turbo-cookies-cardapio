@@ -8,95 +8,361 @@
   <meta property="og:title" content="Turbo Cookies — Cardápio Digital">
   <meta property="og:description" content="Cookies artesanais feitos com amor. Peça pelo WhatsApp!">
   <meta property="og:type" content="website">
-  <title>Turbo Cookies — Cardápio</title>
+  <title>Turbo Cookies</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
 
-  <!-- ── Estado de carregamento ─────────────────────────────────────────── -->
-  <div id="loading" class="loading-state" role="status" aria-live="polite">
+  <!-- ─── Loading ──────────────────────────────────────────────────────────── -->
+  <div id="loading" role="status" aria-live="polite" aria-label="Carregando cardápio">
     <div class="loading-spinner" aria-hidden="true"></div>
-    <p>Carregando cardápio...</p>
+    <p class="loading-text">Carregando cardápio...</p>
   </div>
 
-  <!-- ── Conteúdo principal (oculto até carregar) ──────────────────────── -->
-  <div id="conteudo" hidden>
+  <!-- ─── Conteúdo principal ───────────────────────────────────────────────── -->
+  <div id="app" hidden>
 
-    <!-- Hero -->
-    <section id="hero" class="hero" aria-label="Apresentação">
-      <div class="hero-inner">
-        <div class="logo-wrap">
-          <img src="assets/logo.svg" alt="Turbo Cookies" class="logo-img" id="logo-img">
+    <!-- 1. Header fixo ──────────────────────────────────────────────────────── -->
+    <header id="header" role="banner">
+      <div class="header-inner">
+
+        <div class="header-logo" aria-label="Turbo Cookies">
+          <img src="assets/logo.svg" alt="Turbo Cookies" class="header-logo-img" id="header-logo-img">
         </div>
-        <h1 id="hero-nome" class="hero-nome">Turbo Cookies</h1>
-        <p id="hero-slogan" class="hero-slogan"></p>
-        <p id="hero-horario" class="hero-horario"></p>
-        <a href="#cardapio" class="btn-hero">🍪 Ver Cardápio</a>
+
+        <span class="header-title">Turbo Cookies</span>
+
+        <button class="header-cart" id="header-cart-btn"
+                aria-label="Abrir carrinho" aria-haspopup="dialog">
+          <svg class="cart-icon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true" width="22" height="22">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span class="cart-badge" id="cart-badge" aria-label="itens no carrinho">0</span>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- 2. Hero ──────────────────────────────────────────────────────────────── -->
+    <section id="hero" aria-label="Apresentação da loja">
+      <div class="hero-content">
+        <h1 class="hero-title" id="hero-title">Turbo Cookies</h1>
+        <p class="hero-subtitle" id="hero-subtitle">Cookies artesanais feitos com amor 🍪</p>
+        <div class="hero-chips" role="list">
+          <span class="hero-chip" role="listitem" id="hero-chip-city">
+            <span class="chip-icon" aria-hidden="true">📍</span>
+            <span class="chip-text">Guaporé/RS</span>
+          </span>
+          <span class="hero-chip" role="listitem">
+            <span class="chip-icon" aria-hidden="true">⏱</span>
+            <span class="chip-text">30–45 min</span>
+          </span>
+          <span class="hero-chip" role="listitem">
+            <span class="chip-icon" aria-hidden="true">🛵</span>
+            <span class="chip-text">Entrega R$ 10,00</span>
+          </span>
+        </div>
       </div>
     </section>
 
-    <!-- Nav de categorias (fica fixo no topo ao rolar) -->
-    <nav id="nav-categorias" class="nav-categorias" aria-label="Categorias">
-      <div id="pills-wrap" class="pills-wrap" role="list"></div>
+    <!-- 3. Barra de categorias (sticky) ─────────────────────────────────────── -->
+    <nav id="categories-bar" aria-label="Categorias do cardápio">
+      <div class="categories-scroll" role="list" id="categories-scroll">
+        <!-- .category-pill preenchidos pelo script.js -->
+      </div>
     </nav>
 
-    <!-- Grid de produtos -->
-    <main id="cardapio" class="cardapio-main" aria-label="Produtos">
-      <!-- preenchido pelo script.js -->
+    <!-- 4. Produtos ─────────────────────────────────────────────────────────── -->
+    <main id="products" aria-label="Produtos">
+      <!--
+        TEMPLATE SECTION (gerado pelo script.js):
+        <section class="category-section" id="cat-{id}" data-cat-id="{id}">
+          <h2 class="category-title">{nome}</h2>
+          <div class="products-list">
+            ... product-cards ...
+          </div>
+        </section>
+      -->
+
+      <!--
+        TEMPLATE CARD (gerado pelo script.js):
+        <article class="product-card" id="product-{id}">
+          <div class="product-info">
+            <h3 class="product-name">{nome}</h3>
+            <p class="product-desc">{descricao}</p>
+            <span class="product-price">R$ {preco}</span>
+          </div>
+          <div class="product-thumb">
+            <img class="thumb-img" src="{foto}" alt="{nome}" loading="lazy">
+            OU
+            <div class="thumb-placeholder" aria-hidden="true">🍪</div>
+
+            <button class="btn-add" aria-label="Adicionar {nome} ao carrinho"
+                    data-product-id="{id}">+</button>
+          </div>
+        </article>
+      -->
     </main>
 
-    <!-- Rodapé -->
-    <footer class="footer" aria-label="Informações da loja">
+    <!-- 5. Rodapé ───────────────────────────────────────────────────────────── -->
+    <footer id="footer" aria-label="Informações da loja">
       <div class="footer-inner">
-        <div class="footer-logo-mini">🍪</div>
-        <p id="footer-nome" class="footer-nome-loja"></p>
-        <div class="footer-grid">
-          <span id="footer-instagram" class="footer-item hidden"></span>
-          <span id="footer-cidade" class="footer-item hidden"></span>
-          <span id="footer-horario" class="footer-item hidden"></span>
+        <span class="footer-emoji" aria-hidden="true">🍪</span>
+        <p class="footer-name" id="footer-name">Turbo Cookies</p>
+        <div class="footer-meta" id="footer-meta">
+          <!-- itens preenchidos pelo script.js -->
         </div>
         <p class="footer-copy">Feito com ❤️ em Guaporé/RS</p>
       </div>
     </footer>
 
-  </div>
+  </div><!-- /#app -->
 
-  <!-- ── Carrinho flutuante ─────────────────────────────────────────────── -->
-  <button id="carrinho-float" class="carrinho-float hidden"
-          onclick="abrirCarrinho()" aria-label="Ver carrinho">
-    <span class="carrinho-icone" aria-hidden="true">🛒</span>
-    <span id="carrinho-texto">0 itens</span>
-    <span class="carrinho-seta" aria-hidden="true">›</span>
-  </button>
 
-  <!-- ── Modal do carrinho ─────────────────────────────────────────────── -->
-  <div id="modal-carrinho" class="modal-overlay hidden"
-       role="dialog" aria-modal="true" aria-label="Seu pedido"
-       onclick="fecharCarrinhoOverlay(event)">
-    <div class="modal-box">
+  <!-- ─── Bottom sheet — variações ─────────────────────────────────────────── -->
+  <div class="sheet-overlay" id="sheet-overlay"></div>
 
-      <div class="modal-header">
-        <h2 class="modal-titulo">🛒 Seu Pedido</h2>
-        <button class="btn-fechar" onclick="fecharCarrinho()" aria-label="Fechar">✕</button>
+  <div id="variations-sheet" aria-hidden="true">
+
+    <div class="sheet-container" role="dialog"
+         aria-modal="true" aria-label="Escolha a variação">
+
+      <div class="sheet-handle" aria-hidden="true"></div>
+
+      <div class="sheet-body">
+
+        <div class="sheet-product-photo" id="sheet-product-photo" aria-hidden="true">
+          <!-- img ou placeholder preenchido pelo script.js -->
+        </div>
+
+        <h2 class="sheet-product-name" id="sheet-product-name"></h2>
+        <p class="sheet-product-desc" id="sheet-product-desc"></p>
+
+        <ul class="variations-list" id="variations-list" role="listbox"
+            aria-label="Variações do produto">
+          <!--
+            TEMPLATE VARIATION ITEM (gerado pelo script.js):
+            <li class="variation-item" role="option" aria-selected="false"
+                data-variation-index="{i}">
+              <span class="variation-name">{nome}</span>
+              <span class="variation-price">R$ {preco}</span>
+              <span class="variation-check" aria-hidden="true"></span>
+            </li>
+          -->
+        </ul>
+
+        <div class="quantity-control" aria-label="Quantidade">
+          <button class="qty-btn" id="qty-decrease" aria-label="Diminuir quantidade">−</button>
+          <span class="qty-value" id="qty-value" aria-live="polite">1</span>
+          <button class="qty-btn" id="qty-increase" aria-label="Aumentar quantidade">+</button>
+        </div>
+
       </div>
 
-      <div id="lista-carrinho" class="lista-carrinho" role="list"></div>
-
-      <div class="modal-footer">
-        <div class="total-row">
-          <span class="total-label">Total estimado</span>
-          <span class="total-valor" id="total-valor">R$ 0,00</span>
-        </div>
-        <p class="total-aviso">* Taxas de entrega não incluídas</p>
-        <button class="btn-enviar-pedido" onclick="enviarPedido()">
-          Enviar pelo WhatsApp 🚀
+      <div class="sheet-footer">
+        <button class="sheet-add-btn" id="sheet-add-btn">
+          Adicionar — R$ 0,00
         </button>
-        <button class="btn-limpar" onclick="limparCarrinho()">Limpar carrinho</button>
       </div>
 
     </div>
-  </div>
+  </div><!-- /#variations-sheet -->
 
-  <script src="script.js"></script>
+
+  <!-- ─── Barra do carrinho (rodapé fixo) ──────────────────────────────────── -->
+  <div id="cart-bar" aria-hidden="true">
+    <div class="cart-bar-inner">
+      <span class="cart-bar-info" id="cart-bar-info" aria-live="polite">
+        <span class="cart-bar-icon" aria-hidden="true">🛒</span>
+        <span class="cart-bar-count" id="cart-bar-count">0 itens</span>
+      </span>
+      <button class="cart-bar-btn" id="cart-bar-btn" aria-haspopup="dialog">
+        Ver carrinho — <span id="cart-bar-total">R$ 0,00</span>
+        <span class="cart-bar-arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div><!-- /#cart-bar -->
+
+
+  <!-- ─── Página do carrinho ────────────────────────────────────────────────── -->
+  <div id="cart-page" aria-hidden="true" role="dialog"
+       aria-modal="true" aria-label="Meu pedido">
+
+    <div class="cart-header">
+      <button class="cart-back-btn" id="cart-back-btn" aria-label="Voltar ao cardápio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" width="20" height="20">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <h1 class="cart-title">Meu pedido</h1>
+    </div>
+
+    <div class="cart-body">
+
+      <section class="cart-items" id="cart-items" aria-label="Itens do pedido">
+        <!--
+          TEMPLATE CART ITEM (gerado pelo script.js):
+          <div class="cart-item" data-key="{key}">
+            <div class="cart-item-info">
+              <span class="cart-item-name">{nome}</span>
+              <span class="cart-item-variation">{variacao}</span>
+            </div>
+            <div class="cart-item-controls">
+              <button class="cart-qty-btn" data-action="decrease">−</button>
+              <span class="cart-qty-value">{qtd}</span>
+              <button class="cart-qty-btn" data-action="increase">+</button>
+              <span class="cart-item-price">R$ {preco}</span>
+              <button class="cart-remove-btn" aria-label="Remover item">
+                🗑
+              </button>
+            </div>
+          </div>
+        -->
+      </section>
+
+      <section class="cart-obs" aria-label="Observações do pedido">
+        <label class="cart-field-label" for="obs-input">Observações</label>
+        <textarea class="cart-textarea" id="obs-input" rows="3"
+                  placeholder="Alguma instrução especial para o pedido?"></textarea>
+      </section>
+
+      <section class="cart-customer" aria-label="Seus dados">
+        <h2 class="cart-section-title">Seus dados</h2>
+
+        <div class="cart-field">
+          <label class="cart-field-label" for="customer-name">
+            Seu nome <span class="field-required" aria-hidden="true">*</span>
+          </label>
+          <input class="cart-input" id="customer-name" type="text"
+                 placeholder="Ex: Maria Silva"
+                 autocomplete="name" required aria-required="true">
+          <p class="field-error" id="name-error" role="alert" hidden>
+            Por favor, informe seu nome.
+          </p>
+        </div>
+
+        <div class="cart-field">
+          <label class="cart-field-label" for="customer-whatsapp">
+            Seu WhatsApp <span class="field-required" aria-hidden="true">*</span>
+          </label>
+          <input class="cart-input" id="customer-whatsapp" type="tel"
+                 placeholder="(54) 99999-9999"
+                 autocomplete="tel" inputmode="numeric" required aria-required="true">
+          <p class="field-error" id="whatsapp-error" role="alert" hidden>
+            Por favor, informe um WhatsApp válido.
+          </p>
+        </div>
+
+        <div class="lgpd-check">
+          <label class="lgpd-label">
+            <input type="checkbox" id="lgpd-consent">
+            <span>Concordo com o uso dos meus dados (nome e WhatsApp)
+            exclusivamente para envio deste pedido</span>
+          </label>
+        </div>
+
+      </section>
+
+      <div class="cart-section cart-delivery">
+        <h3>Entrega e pagamento</h3>
+
+        <div class="delivery-field">
+          <label>Como você quer receber?</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="tipo_entrega" value="entrega" id="tipo-entrega" checked>
+              <span>🛵 Entrega em domicílio (+R$ 10,00)</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="tipo_entrega" value="retirada" id="tipo-retirada">
+              <span>🏪 Retirar na loja (grátis)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="delivery-field" id="campo-endereco">
+          <label for="customer-endereco">Endereço de entrega *</label>
+          <input type="text" id="customer-endereco"
+            class="cart-input" placeholder="Rua, número, bairro">
+        </div>
+
+        <div class="delivery-field">
+          <label>Forma de pagamento</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="pagamento" value="pix" checked>
+              <span>💠 PIX</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="pagamento" value="cartao">
+              <span>💳 Cartão</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="pagamento" value="dinheiro">
+              <span>💵 Dinheiro</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="delivery-field hidden" id="campo-troco">
+          <label for="customer-troco">Troco para quanto?</label>
+          <input type="text" id="customer-troco"
+            class="cart-input" placeholder="Ex: R$ 50,00">
+        </div>
+
+      </div>
+
+      <section class="cart-summary" aria-label="Resumo do pedido">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value" id="summary-subtotal">R$ 0,00</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Taxa de entrega</span>
+          <span class="summary-value" id="summary-delivery">R$ 10,00</span>
+        </div>
+        <div class="summary-row summary-row--total">
+          <span class="summary-label">Total</span>
+          <span class="summary-value" id="summary-total">R$ 10,00</span>
+        </div>
+      </section>
+
+    </div><!-- /.cart-body -->
+
+    <div class="cart-footer">
+      <button class="btn-checkout" id="btn-checkout">
+        <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="currentColor"
+             aria-hidden="true" width="22" height="22">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
+                   -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075
+                   -.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059
+                   -.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52
+                   .149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52
+                   -.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51
+                   -.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372
+                   -.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074
+                   .149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625
+                   .712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413
+                   .248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5.008L2.007 22
+                   l5.137-1.302A9.954 9.954 0 0 0 11.998 22c5.523 0 10-4.477 10-10
+                   S17.521 2 11.998 2zm0 18.001a7.96 7.96 0 0 1-4.09-1.126l-.293-.174
+                   -3.046.772.806-2.967-.191-.305A7.956 7.956 0 0 1 4 12c0-4.41 3.589-8
+                   7.998-8 4.41 0 8 3.59 8 8s-3.59 8-8 8z"/>
+        </svg>
+        Finalizar pedido pelo WhatsApp
+      </button>
+    </div>
+
+  </div><!-- /#cart-page -->
+
 </body>
 </html>
