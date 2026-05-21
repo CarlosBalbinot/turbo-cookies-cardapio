@@ -23,9 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (dados) {
       estado.dados = dados
 
-      document.getElementById('loading').style.display = 'none'
+      var loading = document.getElementById('loading')
+      if (loading) loading.style.display = 'none'
       var app = document.getElementById('app')
-      app.removeAttribute('hidden')
+      if (app) app.removeAttribute('hidden')
 
       renderHero(dados.loja)
       renderFooter(dados.loja)
@@ -36,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
       requestAnimationFrame(iniciarObservador)
     })
     .catch(function (err) {
-      document.getElementById('loading').innerHTML =
+      var loadingEl = document.getElementById('loading')
+      if (loadingEl) loadingEl.innerHTML =
         '<div style="text-align:center;padding:2rem;font-family:system-ui">' +
         '<p style="font-size:3rem;margin-bottom:1rem">🍪</p>' +
         '<p style="font-size:1rem;color:#1D1D1F;margin-bottom:.5rem">' +
@@ -206,7 +208,8 @@ function abrirSheet(produto) {
   estado.sheetVarIdx   = null
   estado.sheetQtd      = 1
 
-  document.getElementById('sheet-product-name').textContent = produto.nome
+  var nomeSheetEl = document.getElementById('sheet-product-name')
+  if (nomeSheetEl) nomeSheetEl.textContent = produto.nome
 
   var descEl = document.getElementById('sheet-product-desc')
   if (descEl) {
@@ -223,39 +226,50 @@ function abrirSheet(produto) {
 
   var lista = document.getElementById('variations-list')
   var vars  = produto.variacoes || []
-  lista.style.outline    = ''
-  lista.style.borderRadius = ''
+  if (lista) {
+    lista.style.outline    = ''
+    lista.style.borderRadius = ''
 
-  lista.innerHTML = vars.map(function (v, i) {
-    return '<li class="variation-item" role="option" aria-selected="false" data-idx="' + i + '">' +
-      '<span class="variation-name">' + esc(v.nome) + '</span>' +
-      '<span class="variation-price">' + formatPrice(v.preco) + '</span>' +
-      '<span class="variation-check" aria-hidden="true"></span>' +
-      '</li>'
-  }).join('')
+    lista.innerHTML = vars.map(function (v, i) {
+      return '<li class="variation-item" role="option" aria-selected="false" data-idx="' + i + '">' +
+        '<span class="variation-name">' + esc(v.nome) + '</span>' +
+        '<span class="variation-price">' + formatPrice(v.preco) + '</span>' +
+        '<span class="variation-check" aria-hidden="true"></span>' +
+        '</li>'
+    }).join('')
 
-  lista.querySelectorAll('.variation-item').forEach(function (item) {
-    item.addEventListener('click', function (e) {
-      e.stopPropagation()
-      selecionarVariacao(parseInt(item.dataset.idx, 10))
+    lista.querySelectorAll('.variation-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation()
+        selecionarVariacao(parseInt(item.dataset.idx, 10))
+      })
     })
-  })
+  }
 
   if (vars.length === 1) selecionarVariacao(0)
 
-  document.getElementById('qty-value').textContent = '1'
+  var qtyValEl = document.getElementById('qty-value')
+  if (qtyValEl) qtyValEl.textContent = '1'
   atualizarBotaoSheet()
 
-  document.getElementById('variations-sheet').classList.add('active')
-  document.getElementById('variations-sheet').setAttribute('aria-hidden', 'false')
-  document.querySelector('.sheet-overlay').classList.add('active')
+  var sheetEl = document.getElementById('variations-sheet')
+  if (sheetEl) {
+    sheetEl.classList.add('active')
+    sheetEl.setAttribute('aria-hidden', 'false')
+  }
+  var overlayEl = document.querySelector('.sheet-overlay')
+  if (overlayEl) overlayEl.classList.add('active')
   document.body.style.overflow = 'hidden'
 }
 
 function fecharSheet() {
-  document.getElementById('variations-sheet').classList.remove('active')
-  document.getElementById('variations-sheet').setAttribute('aria-hidden', 'true')
-  document.querySelector('.sheet-overlay').classList.remove('active')
+  var sheetEl = document.getElementById('variations-sheet')
+  if (sheetEl) {
+    sheetEl.classList.remove('active')
+    sheetEl.setAttribute('aria-hidden', 'true')
+  }
+  var overlayEl = document.querySelector('.sheet-overlay')
+  if (overlayEl) overlayEl.classList.remove('active')
   document.body.style.overflow = ''
   estado.sheetProduto  = null
   estado.sheetVariacao = null
@@ -274,7 +288,8 @@ function selecionarVariacao(idx) {
     item.setAttribute('aria-selected', ativo ? 'true' : 'false')
   })
 
-  document.getElementById('variations-list').style.outline = ''
+  var listaEl = document.getElementById('variations-list')
+  if (listaEl) listaEl.style.outline = ''
   atualizarBotaoSheet()
 }
 
@@ -408,14 +423,20 @@ function abrirCarrinho() {
   if (nomeSalvo  && nomeInput  && !nomeInput.value)  nomeInput.value  = nomeSalvo
   if (whatsSalvo && whatsInput && !whatsInput.value) whatsInput.value = whatsSalvo
 
-  document.getElementById('cart-page').classList.add('active')
-  document.getElementById('cart-page').setAttribute('aria-hidden', 'false')
+  var cartPageEl = document.getElementById('cart-page')
+  if (cartPageEl) {
+    cartPageEl.classList.add('active')
+    cartPageEl.setAttribute('aria-hidden', 'false')
+  }
   document.body.style.overflow = 'hidden'
 }
 
 function fecharCarrinho() {
-  document.getElementById('cart-page').classList.remove('active')
-  document.getElementById('cart-page').setAttribute('aria-hidden', 'true')
+  var cartPageEl = document.getElementById('cart-page')
+  if (cartPageEl) {
+    cartPageEl.classList.remove('active')
+    cartPageEl.setAttribute('aria-hidden', 'true')
+  }
   document.body.style.overflow = ''
 }
 
@@ -483,27 +504,29 @@ function finalizarPedido() {
   var nomeErr    = document.getElementById('name-error')
   var whatsErr   = document.getElementById('whatsapp-error')
 
+  if (!nomeInput || !whatsInput) return
+
   var nome  = nomeInput.value.trim()
   var whats = whatsInput.value.replace(/\D/g, '')
   var valido = true
 
   if (!nome) {
-    nomeErr.removeAttribute('hidden')
+    if (nomeErr) nomeErr.removeAttribute('hidden')
     nomeInput.classList.add('error')
     nomeInput.focus()
     valido = false
   } else {
-    nomeErr.setAttribute('hidden', '')
+    if (nomeErr) nomeErr.setAttribute('hidden', '')
     nomeInput.classList.remove('error')
   }
 
   if (!whats || whats.length < 10) {
-    whatsErr.removeAttribute('hidden')
+    if (whatsErr) whatsErr.removeAttribute('hidden')
     whatsInput.classList.add('error')
     if (valido) whatsInput.focus()
     valido = false
   } else {
-    whatsErr.setAttribute('hidden', '')
+    if (whatsErr) whatsErr.setAttribute('hidden', '')
     whatsInput.classList.remove('error')
   }
 
@@ -522,14 +545,17 @@ function finalizarPedido() {
   }
 
   var consentimento = document.getElementById('lgpd-consent')
-  if (!consentimento.checked) {
-    consentimento.closest('.lgpd-check').style.outline = '2px solid #E94560'
-    consentimento.closest('.lgpd-check').style.borderRadius = '8px'
-    consentimento.closest('.lgpd-check').style.padding = '6px'
+  var lgpdCheck = consentimento ? consentimento.closest('.lgpd-check') : null
+  if (consentimento && !consentimento.checked) {
+    if (lgpdCheck) {
+      lgpdCheck.style.outline = '2px solid #E94560'
+      lgpdCheck.style.borderRadius = '8px'
+      lgpdCheck.style.padding = '6px'
+    }
     consentimento.scrollIntoView({ behavior: 'smooth', block: 'center' })
     return
   }
-  consentimento.closest('.lgpd-check').style.outline = ''
+  if (lgpdCheck) lgpdCheck.style.outline = ''
 
   if (!valido || estado.carrinho.length === 0) return
 
@@ -713,7 +739,7 @@ function registrarEventos() {
   if (qtyDec) qtyDec.addEventListener('click', function () {
     if (estado.sheetQtd > 1) {
       estado.sheetQtd--
-      qtyVal.textContent = estado.sheetQtd
+      if (qtyVal) qtyVal.textContent = estado.sheetQtd
       atualizarBotaoSheet()
     }
   })
@@ -721,7 +747,7 @@ function registrarEventos() {
   if (qtyInc) qtyInc.addEventListener('click', function () {
     if (estado.sheetQtd < 99) {
       estado.sheetQtd++
-      qtyVal.textContent = estado.sheetQtd
+      if (qtyVal) qtyVal.textContent = estado.sheetQtd
       atualizarBotaoSheet()
     }
   })
@@ -737,8 +763,10 @@ function registrarEventos() {
 
     if (temVars && !estado.sheetVariacao) {
       var lista = document.getElementById('variations-list')
-      lista.style.outline      = '2px solid #E94560'
-      lista.style.borderRadius = '16px'
+      if (lista) {
+        lista.style.outline      = '2px solid #E94560'
+        lista.style.borderRadius = '16px'
+      }
       return
     }
 
@@ -775,8 +803,10 @@ function registrarEventos() {
   // Escape fecha o que estiver aberto
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return
-    var sheetAtivo    = document.getElementById('variations-sheet').classList.contains('active')
-    var carrinhoAtivo = document.getElementById('cart-page').classList.contains('active')
+    var sheetEscEl    = document.getElementById('variations-sheet')
+    var cartEscEl     = document.getElementById('cart-page')
+    var sheetAtivo    = sheetEscEl ? sheetEscEl.classList.contains('active') : false
+    var carrinhoAtivo = cartEscEl ? cartEscEl.classList.contains('active') : false
     if (sheetAtivo)        fecharSheet()
     else if (carrinhoAtivo) fecharCarrinho()
   })
