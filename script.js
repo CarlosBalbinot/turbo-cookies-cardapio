@@ -1,11 +1,12 @@
 /*  Estado global  */
 var estado = {
-  dados:         null,
-  carrinho:      [],
-  sheetProduto:  null,
-  sheetVariacao: null,
-  sheetVarIdx:   null,
-  sheetQtd:      1,
+  dados:            null,
+  carrinho:         [],
+  sheetProduto:     null,
+  sheetVariacao:    null,
+  sheetVarIdx:      null,
+  sheetQtd:         1,
+  todosOsProdutos:  null,
 }
 
 var observadorBloqueado = false
@@ -30,11 +31,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderHero(dados.loja)
       renderFooter(dados.loja)
-      renderCategorias(dados.categorias)
-      renderProdutos(dados.categorias)
+
+      var blocos = dados.blocos
+      var temBlocos = Array.isArray(blocos) && blocos.length > 0
+
+      if (temBlocos) {
+        var resultado = processarBlocos(dados)
+        if (resultado.blocos.length > 0) {
+          estado.todosOsProdutos = resultado.todosProdutos
+          renderNavBlocos(resultado.blocos)
+          renderProdutosBlocos(resultado.blocos, resultado.produtoBadge, resultado.todosProdutos)
+        } else {
+          renderCategorias(dados.categorias)
+          renderProdutos(dados.categorias)
+        }
+      } else {
+        renderCategorias(dados.categorias)
+        renderProdutos(dados.categorias)
+      }
+
       atualizarUICarrinho()
 
       requestAnimationFrame(iniciarObservador)
+      requestAnimationFrame(iniciarAnimacaoCards)
     })
     .catch(function (err) {
       var loadingEl = document.getElementById('loading')
@@ -51,40 +70,108 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 })
 
+/*  Verifica se a loja está aberta agora  */
+function verificarHorario(abertura, fechamento) {
+  try {
+    var agora  = new Date()
+    var hora   = agora.getHours() * 60 + agora.getMinutes()
+    var partsA = abertura.split(':')
+    var partsF = fechamento.split(':')
+    var ab = parseInt(partsA[0], 10) * 60 + parseInt(partsA[1], 10)
+    var fe = parseInt(partsF[0], 10) * 60 + parseInt(partsF[1], 10)
+    return hora >= ab && hora < fe
+  } catch (e) { return false }
+}
+
+/*  Cookie SVG placeholder  */
+function cookieSVG(size) {
+  return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true" fill="none">' +
+    '<circle cx="12" cy="12" r="9" stroke="#C8965A" stroke-width="1.5"/>' +
+    '<circle cx="8.5" cy="10" r="1.5" fill="#C8965A"/>' +
+    '<circle cx="14" cy="8.5" r="1.5" fill="#C8965A"/>' +
+    '<circle cx="15" cy="14.5" r="1.5" fill="#C8965A"/>' +
+    '<circle cx="9.5" cy="15" r="1.5" fill="#C8965A"/>' +
+    '<circle cx="12" cy="11.5" r="1" fill="#C8965A"/>' +
+    '</svg>'
+}
+
 /*  Hero  */
 function renderHero(loja) {
   var titulo = document.getElementById('hero-title')
   var sub    = document.getElementById('hero-subtitle')
-  if (titulo) titulo.textContent = loja.nome
-  if (sub)    sub.textContent   = (loja.slogan || 'Cookies artesanais feitos com amor') + ' 🍪'
+  if (titulo) titulo.textContent = loja.nome || ''
+  if (sub)    sub.textContent   = loja.slogan || ''
 
-  var chipCity = document.getElementById('hero-chip-city')
-  if (chipCity && loja.cidade) {
-    chipCity.querySelector('.chip-text').textContent = loja.cidade
+  var chips = document.getElementById('hero-chips')
+  if (!chips) return
+
+  var svgPin = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'
+  var svgClk = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>'
+  var svgMto = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM7 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.35-1-2.22-1s-1.67.39-2.22 1H3V6h12v9H9.22zM17 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>'
+
+  var chipList = []
+
+  if (loja.cidade) {
+    chipList.push('<span class="hero-chip" role="listitem">' + svgPin + '<span>' + esc(loja.cidade) + '</span></span>')
   }
+  if (loja.horario) {
+    chipList.push('<span class="hero-chip" role="listitem">' + svgClk + '<span>' + esc(loja.horario) + '</span></span>')
+  }
+  if (loja.taxa_entrega !== undefined) {
+    var taxaTxt = loja.taxa_entrega > 0 ? 'Entrega ' + formatPrice(loja.taxa_entrega) : 'Entrega grátis'
+    chipList.push('<span class="hero-chip" role="listitem">' + svgMto + '<span>' + taxaTxt + '</span></span>')
+  }
+  if (loja.horario_abertura && loja.horario_fechamento) {
+    var aberto   = verificarHorario(loja.horario_abertura, loja.horario_fechamento)
+    var svgOk    = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
+    var svgNo    = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>'
+    var stClass  = aberto ? 'hero-chip--open' : 'hero-chip--closed'
+    var stIcon   = aberto ? svgOk : svgNo
+    var stTxt    = aberto ? 'Aberto agora' : ('Abre às ' + esc(loja.horario_abertura))
+    chipList.push('<span class="hero-chip ' + stClass + '" role="listitem">' + stIcon + '<span>' + stTxt + '</span></span>')
+  }
+
+  chips.innerHTML = chipList.join('')
 }
 
 /*  Footer  */
 function renderFooter(loja) {
-  var nome = document.getElementById('footer-name')
-  if (nome) nome.textContent = loja.nome
+  var nomeEl   = document.getElementById('footer-name')
+  var sloganEl = document.getElementById('footer-slogan')
+  var cityEl   = document.getElementById('footer-city')
+  var copyEl   = document.getElementById('footer-copy')
 
-  var meta = document.getElementById('footer-meta')
-  if (!meta) return
+  if (nomeEl)   nomeEl.textContent   = loja.nome   || ''
+  if (sloganEl) sloganEl.textContent = loja.slogan || ''
+  if (cityEl)   cityEl.textContent   = loja.cidade || ''
+  if (copyEl)   copyEl.textContent   = '© ' + new Date().getFullYear() + ' ' + (loja.nome || 'Turbo Cookies') + ' · Todos os direitos reservados'
 
-  var itens = []
-  if (loja.instagram) itens.push('📸 ' + loja.instagram)
-  if (loja.cidade)    itens.push('📍 ' + loja.cidade)
-  if (loja.horario)   itens.push('⏰ ' + loja.horario)
+  var contact = document.getElementById('footer-contact')
+  if (!contact) return
 
-  meta.innerHTML = itens.map(function (txt) {
-    return '<span>' + esc(txt) + '</span>'
-  }).join('')
+  var svgWpp = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5.008L2.007 22l5.137-1.302A9.954 9.954 0 0 0 11.998 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18.001a7.96 7.96 0 0 1-4.09-1.126l-.293-.174-3.046.772.806-2.967-.191-.305A7.956 7.956 0 0 1 4 12c0-4.41 3.589-8 7.998-8 4.41 0 8 3.59 8 8s-3.59 8-8 8z"/></svg>'
+  var svgInsta = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>'
+
+  var html = '<h3 class="footer-col-title">Contato</h3>'
+
+  if (loja.whatsapp) {
+    var wppNum = loja.whatsapp.replace(/\D/g, '')
+    html += '<a href="https://wa.me/' + wppNum + '" class="footer-link" target="_blank" rel="noopener noreferrer">' +
+      svgWpp + '<span>' + esc(formatarExibicaoWhatsApp(wppNum)) + '</span></a>'
+  }
+  if (loja.instagram) {
+    var handle = loja.instagram.replace(/^@/, '')
+    html += '<a href="https://instagram.com/' + encodeURIComponent(handle) + '" class="footer-link" target="_blank" rel="noopener noreferrer">' +
+      svgInsta + '<span>' + esc(loja.instagram) + '</span></a>'
+  }
+
+  contact.innerHTML = html
 }
 
-/* ─── Categorias (pills) ─────────────────────────────────── */
+/* ─── Categorias (pills + sidebar) ──────────────────────── */
 function renderCategorias(categorias) {
   var container = document.getElementById('categories-scroll')
+  var sidebar   = document.getElementById('sidebar-nav')
   if (!container) return
 
   var visiveis = categorias.filter(function (c) {
@@ -105,13 +192,31 @@ function renderCategorias(categorias) {
       setTimeout(function () { observadorBloqueado = false }, 1000)
     })
   })
+
+  if (sidebar) {
+    sidebar.innerHTML = visiveis.map(function (cat, idx) {
+      return '<button class="sidebar-pill' + (idx === 0 ? ' active' : '') + '" ' +
+        'data-cat-id="' + cat.id + '">' + esc(cat.nome) + '</button>'
+    }).join('')
+
+    sidebar.querySelectorAll('.sidebar-pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        ativarPill(pill.dataset.catId)
+        rolarParaSecao('cat-' + pill.dataset.catId)
+        observadorBloqueado = true
+        setTimeout(function () { observadorBloqueado = false }, 1000)
+      })
+    })
+  }
 }
 
 function ativarPill(catId) {
-  document.querySelectorAll('.category-pill').forEach(function (p) {
+  document.querySelectorAll('.category-pill, .sidebar-pill').forEach(function (p) {
     var ativo = p.dataset.catId === String(catId)
     p.classList.toggle('active', ativo)
-    if (ativo) p.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    if (ativo && p.classList.contains('category-pill')) {
+      p.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+    }
   })
 }
 
@@ -144,7 +249,7 @@ function renderProdutos(categorias) {
 
   main.addEventListener('click', function (e) {
     var btnAdd = e.target.closest('.btn-add')
-    if (btnAdd) {
+    if (btnAdd && !btnAdd.disabled) {
       e.stopPropagation()
       var produto = encontrarProduto(parseInt(btnAdd.dataset.id, 10))
       if (!produto) return
@@ -158,21 +263,162 @@ function renderProdutos(categorias) {
     }
 
     var card = e.target.closest('.product-card')
-    if (card) {
+    if (card && !card.dataset.esgotado) {
       var produto = encontrarProduto(parseInt(card.dataset.id, 10))
       if (produto) abrirSheet(produto)
     }
   })
 }
 
-function criarCardHTML(produto) {
+/* ─── Blocos customizáveis ───────────────────────────────── */
+function processarBlocos(dados) {
+  var blocos = dados.blocos.slice()
+  var agora  = new Date()
+
+  var todosProdutos = {}
+  var cats = dados.categorias || []
+  for (var ci = 0; ci < cats.length; ci++) {
+    var prods = cats[ci].produtos || []
+    for (var pi = 0; pi < prods.length; pi++) {
+      todosProdutos[prods[pi].id] = prods[pi]
+    }
+  }
+
+  for (var bi = 0; bi < blocos.length; bi++) {
+    var bloco = blocos[bi]
+    bloco._expirado = false
+    if (bloco.expira_em) {
+      var expira = new Date(bloco.expira_em)
+      if (agora > expira) bloco._expirado = true
+    }
+  }
+
+  var relocados = {}
+  for (var ri = 0; ri < blocos.length; ri++) {
+    if (!blocos[ri]._expirado) continue
+    var pids = blocos[ri].produto_ids || []
+    for (var rp = 0; rp < pids.length; rp++) {
+      var prod = todosProdutos[pids[rp]]
+      if (prod && prod.apos_expirar_bloco_id) {
+        relocados[pids[rp]] = prod.apos_expirar_bloco_id
+      }
+    }
+  }
+
+  var produtoBadge = {}
+  var blocosVisiveis = blocos
+    .filter(function (b) { return !b._expirado && b.visivel !== false })
+    .sort(function (a, b) { return (a.ordem || 0) - (b.ordem || 0) })
+
+  for (var vi = 0; vi < blocosVisiveis.length; vi++) {
+    var vb = blocosVisiveis[vi]
+    var proprios = (vb.produto_ids || []).slice()
+    var extras   = []
+    var relocKeys = Object.keys(relocados)
+    for (var rk = 0; rk < relocKeys.length; rk++) {
+      var pid = parseInt(relocKeys[rk], 10)
+      if (relocados[pid] === vb.id) extras.push(pid)
+    }
+    vb._prodIds = proprios.concat(extras)
+    if (vb.badge) {
+      for (var bp = 0; bp < vb._prodIds.length; bp++) {
+        produtoBadge[vb._prodIds[bp]] = vb.badge
+      }
+    }
+  }
+
+  return { blocos: blocosVisiveis, produtoBadge: produtoBadge, todosProdutos: todosProdutos }
+}
+
+function renderNavBlocos(blocos) {
+  var container = document.getElementById('categories-scroll')
+  var sidebar   = document.getElementById('sidebar-nav')
+  if (!container) return
+
+  container.innerHTML = blocos.map(function (bloco, idx) {
+    return '<button class="category-pill' + (idx === 0 ? ' active' : '') + '" ' +
+      'role="listitem" data-cat-id="bloco-' + bloco.id + '">' +
+      esc(bloco.titulo) + '</button>'
+  }).join('')
+
+  container.querySelectorAll('.category-pill').forEach(function (pill) {
+    pill.addEventListener('click', function () {
+      ativarPill(pill.dataset.catId)
+      rolarParaSecao('cat-' + pill.dataset.catId)
+      observadorBloqueado = true
+      setTimeout(function () { observadorBloqueado = false }, 1000)
+    })
+  })
+
+  if (sidebar) {
+    sidebar.innerHTML = blocos.map(function (bloco, idx) {
+      return '<button class="sidebar-pill' + (idx === 0 ? ' active' : '') + '" ' +
+        'data-cat-id="bloco-' + bloco.id + '">' + esc(bloco.titulo) + '</button>'
+    }).join('')
+
+    sidebar.querySelectorAll('.sidebar-pill').forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        ativarPill(pill.dataset.catId)
+        rolarParaSecao('cat-' + pill.dataset.catId)
+        observadorBloqueado = true
+        setTimeout(function () { observadorBloqueado = false }, 1000)
+      })
+    })
+  }
+}
+
+function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
+  var main = document.getElementById('products')
+  if (!main) return
+
+  main.innerHTML = blocos.map(function (bloco) {
+    var prods = (bloco._prodIds || [])
+      .map(function (pid) { return todosProdutos[pid] })
+      .filter(function (p) { return p && p.visivel_cardapio !== false })
+
+    if (!prods.length) return ''
+
+    return '<section class="category-section" id="cat-bloco-' + bloco.id + '" data-cat-id="bloco-' + bloco.id + '">' +
+      '<h2 class="category-title">' + esc(bloco.titulo) + '</h2>' +
+      '<div class="products-list">' +
+      prods.map(function (p) { return criarCardHTML(p, produtoBadge[p.id] || null) }).join('') +
+      '</div></section>'
+  }).join('')
+
+  main.addEventListener('click', function (e) {
+    var btnAdd = e.target.closest('.btn-add')
+    if (btnAdd && !btnAdd.disabled) {
+      e.stopPropagation()
+      var produto = encontrarProduto(parseInt(btnAdd.dataset.id, 10))
+      if (!produto) return
+      animacaoBtnAdd(btnAdd)
+      if (produto.variacoes && produto.variacoes.length > 0) {
+        abrirSheet(produto)
+      } else {
+        adicionarAoCarrinho(produto, null, 1)
+      }
+      return
+    }
+
+    var card = e.target.closest('.product-card')
+    if (card && !card.dataset.esgotado) {
+      var produto = encontrarProduto(parseInt(card.dataset.id, 10))
+      if (produto) abrirSheet(produto)
+    }
+  })
+}
+
+function criarCardHTML(produto, badge) {
+  var esgotado = produto.disponivel === false
   var vars    = produto.variacoes || []
   var temVars = vars.length > 1
 
   var precoHtml
-  if (temVars) {
+  if (esgotado) {
+    precoHtml = '<span style="display:inline-block;background:#E94560;color:#fff;font-size:.75rem;font-weight:700;padding:.2em .65em;border-radius:50px">Esgotado</span>'
+  } else if (temVars) {
     var menor = Math.min.apply(null, vars.map(function (v) { return v.preco }))
-    precoHtml = '<span class="product-price">A partir de ' + formatPrice(menor) + '</span>'
+    precoHtml = ' formatPrice(menor) + '
   } else if (vars.length === 1) {
     precoHtml = '<span class="product-price">' + formatPrice(vars[0].preco) + '</span>'
   } else {
@@ -182,21 +428,24 @@ function criarCardHTML(produto) {
   var fotoHtml = produto.foto
     ? '<img class="thumb-img" src="' + esc(produto.foto) + '" alt="' + esc(produto.nome) +
       '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
-      '<div class="thumb-placeholder" style="display:none" aria-hidden="true">🍪</div>'
-    : '<div class="thumb-placeholder" aria-hidden="true">🍪</div>'
+      '<div class="thumb-placeholder" style="display:none" aria-hidden="true">' + cookieSVG(28) + '</div>'
+    : '<div class="thumb-placeholder" aria-hidden="true">' + cookieSVG(28) + '</div>'
 
   var descHtml = produto.descricao
     ? '<p class="product-desc">' + esc(produto.descricao) + '</p>'
     : ''
 
-  return '<article class="product-card" data-id="' + produto.id + '">' +
+  var badgeHtml = badge ? '<span class="product-badge">' + esc(badge) + '</span>' : ''
+
+  return '<article class="product-card"' + (esgotado ? ' data-esgotado="true" style="opacity:.5"' : '') + ' data-id="' + produto.id + '">' +
     '<div class="product-info">' +
+    badgeHtml +
     '<h3 class="product-name">' + esc(produto.nome) + '</h3>' +
     descHtml + precoHtml +
     '</div>' +
     '<div class="product-thumb">' +
     fotoHtml +
-    '<button class="btn-add" data-id="' + produto.id + '" ' +
+    '<button class="btn-add"' + (esgotado ? ' disabled style="cursor:default"' : '') + ' data-id="' + produto.id + '" ' +
     'aria-label="Adicionar ' + esc(produto.nome) + ' ao carrinho">+</button>' +
     '</div></article>'
 }
@@ -221,7 +470,7 @@ function abrirSheet(produto) {
   if (fotoEl) {
     fotoEl.innerHTML = produto.foto
       ? '<img src="' + esc(produto.foto) + '" alt="' + esc(produto.nome) + '">'
-      : '🍪'
+      : cookieSVG(56)
   }
 
   var lista = document.getElementById('variations-list')
@@ -447,7 +696,7 @@ function renderizarItensCarrinho() {
   if (estado.carrinho.length === 0) {
     container.innerHTML =
       '<div style="text-align:center;padding:3rem 1rem;color:#6E6E73">' +
-      '<div style="font-size:3rem;margin-bottom:.75rem">🍪</div>' +
+      '<div style="display:flex;justify-content:center;margin-bottom:.75rem">' + cookieSVG(48) + '</div>' +
       '<p style="font-size:.95rem">Seu carrinho está vazio</p>' +
       '</div>'
   } else {
@@ -612,6 +861,30 @@ function finalizarPedido() {
   )
 }
 
+/* ─── Animação de entrada dos cards ─────────────────────── */
+function iniciarAnimacaoCards() {
+  var cards = Array.from(document.querySelectorAll('.product-card'))
+  if (!cards.length) return
+
+  cards.forEach(function(card) {
+    card.classList.add('card-hidden')
+  })
+
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return
+      var card = entry.target
+      var idx  = cards.indexOf(card) % 4
+      setTimeout(function() {
+        card.classList.remove('card-hidden')
+      }, idx * 60)
+      obs.unobserve(card)
+    })
+  }, { threshold: 0.05 })
+
+  cards.forEach(function(card) { obs.observe(card) })
+}
+
 /* ─── IntersectionObserver ───────────────────────────────── */
 function iniciarObservador() {
   var sections = document.querySelectorAll('.category-section')
@@ -654,8 +927,15 @@ function animacaoBadge() {
 }
 
 function animacaoBtnAdd(btn) {
-  btn.style.transform = 'scale(0.85)'
-  setTimeout(function () { btn.style.transform = '' }, 150)
+  btn.style.transition = 'transform 0.08s ease'
+  btn.style.transform  = 'scale(1.2)'
+  setTimeout(function () {
+    btn.style.transform = 'scale(1)'
+    setTimeout(function () {
+      btn.style.transform  = ''
+      btn.style.transition = ''
+    }, 80)
+  }, 80)
 }
 
 /* ─── Formatação ─────────────────────────────────────────── */
@@ -695,6 +975,7 @@ function esc(str) {
 
 function encontrarProduto(id) {
   if (!estado.dados) return null
+  if (estado.todosOsProdutos) return estado.todosOsProdutos[id] || null
   var cats = estado.dados.categorias
   for (var i = 0; i < cats.length; i++) {
     var prods = cats[i].produtos

@@ -3,21 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Cardápio da Turbo Cookies — cookies artesanais feitos com amor em Guaporé/RS">
+  <meta name="description" content="Cardápio Turbo Cookies — Cookies artesanais feitos com amor em Guaporé/RS. Peça pelo WhatsApp ou delivery.">
+  <meta name="keywords" content="cookies artesanais, confeitaria, Guaporé, delivery, cookies recheados">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#E94560">
-  <meta property="og:title" content="Turbo Cookies — Cardápio Digital">
-  <meta property="og:description" content="Cookies artesanais feitos com amor. Peça pelo WhatsApp!">
+
+  <!-- Segurança -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Turbo Cookies • Cardápio">
+  <meta property="og:description" content="Cookies artesanais feitos com amor. Peça agora!">
   <meta property="og:type" content="website">
-  <title>Turbo Cookies</title>
+  <meta property="og:image" content="assets/1200x630.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="pt_BR">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Turbo Cookies — Cardápio">
+  <meta name="twitter:description" content="Cookies artesanais feitos com amor.">
+
+  <title>Turbo Cookies • Cardápio</title>
+
+  <link rel="canonical" href="https://CarlosBalbinot.github.io/turbo-cookies-cardapio/">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="assets/icon.ico">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/192x192.png">
+  <link rel="icon" type="image/png" sizes="256x256" href="assets/256x256.png">
+  <link rel="apple-touch-icon" href="assets/192x192.png">
+
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
 <body>
 
-  <!-- ─── Loading ──────────────────────────────────────────────────────────── -->
+  <!-- ─── Loading — Skeleton ──────────────────────────────────────────────── -->
   <div id="loading" role="status" aria-live="polite" aria-label="Carregando cardápio">
-    <div class="loading-spinner" aria-hidden="true"></div>
-    <p class="loading-text">Carregando cardápio...</p>
+    <div class="skeleton-list" aria-hidden="true">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
   </div>
 
   <!-- ─── Conteúdo principal ───────────────────────────────────────────────── -->
@@ -28,7 +58,7 @@
       <div class="header-inner">
 
         <div class="header-logo" aria-label="Turbo Cookies">
-          <img src="assets/logo.svg" alt="Turbo Cookies" class="header-logo-img" id="header-logo-img">
+          <img src="assets/splash-logo.png" alt="Turbo Cookies" class="header-logo-img" id="header-logo-img">
         </div>
 
         <span class="header-title">Turbo Cookies</span>
@@ -52,34 +82,32 @@
     <!-- 2. Hero ──────────────────────────────────────────────────────────────── -->
     <section id="hero" aria-label="Apresentação da loja">
       <div class="hero-content">
+        <img src="assets/splash-logo.png" alt="" aria-hidden="true" class="hero-logo">
         <h1 class="hero-title" id="hero-title">Turbo Cookies</h1>
-        <p class="hero-subtitle" id="hero-subtitle">Cookies artesanais feitos com amor 🍪</p>
-        <div class="hero-chips" role="list">
-          <span class="hero-chip" role="listitem" id="hero-chip-city">
-            <span class="chip-icon" aria-hidden="true">📍</span>
-            <span class="chip-text">Guaporé/RS</span>
-          </span>
-          <span class="hero-chip" role="listitem">
-            <span class="chip-icon" aria-hidden="true">⏱</span>
-            <span class="chip-text">30–45 min</span>
-          </span>
-          <span class="hero-chip" role="listitem">
-            <span class="chip-icon" aria-hidden="true">🛵</span>
-            <span class="chip-text">Entrega R$ 10,00</span>
-          </span>
+        <p class="hero-subtitle" id="hero-subtitle"></p>
+        <div class="hero-chips" role="list" id="hero-chips">
+          <!-- populado por renderHero() -->
         </div>
       </div>
     </section>
 
-    <!-- 3. Barra de categorias (sticky) ─────────────────────────────────────── -->
+    <!-- 3. Barra de categorias (mobile/tablet) ──────────────────────────────── -->
     <nav id="categories-bar" aria-label="Categorias do cardápio">
       <div class="categories-scroll" role="list" id="categories-scroll">
         <!-- .category-pill preenchidos pelo script.js -->
       </div>
     </nav>
 
-    <!-- 4. Produtos ─────────────────────────────────────────────────────────── -->
-    <main id="products" aria-label="Produtos">
+    <!-- 4. Layout principal (sidebar + produtos) ─────────────────────────────── -->
+    <div id="content-layout">
+
+      <aside id="categories-sidebar" aria-label="Categorias do cardápio">
+        <nav id="sidebar-nav" aria-label="Navegação por categoria">
+          <!-- .sidebar-pill preenchidos pelo script.js -->
+        </nav>
+      </aside>
+
+      <main id="products" aria-label="Produtos">
       <!--
         TEMPLATE SECTION (gerado pelo script.js):
         <section class="category-section" id="cat-{id}" data-cat-id="{id}">
@@ -110,15 +138,32 @@
       -->
     </main>
 
+    </div><!-- /#content-layout -->
+
     <!-- 5. Rodapé ───────────────────────────────────────────────────────────── -->
     <footer id="footer" aria-label="Informações da loja">
-      <div class="footer-inner">
-        <span class="footer-emoji" aria-hidden="true">🍪</span>
-        <p class="footer-name" id="footer-name">Turbo Cookies</p>
-        <div class="footer-meta" id="footer-meta">
-          <!-- itens preenchidos pelo script.js -->
+      <div class="footer-top">
+
+        <div class="footer-brand">
+          <img src="assets/splash-logo.png" alt="Turbo Cookies" class="footer-logo">
+          <p class="footer-name" id="footer-name">Turbo Cookies</p>
+          <p class="footer-slogan" id="footer-slogan"></p>
+          <p class="footer-city" id="footer-city"></p>
         </div>
-        <p class="footer-copy">Feito com ❤️ em Guaporé/RS</p>
+
+        <div class="footer-links">
+          <h3 class="footer-col-title">Menu</h3>
+          <a href="#" class="footer-link">Início</a>
+          <a href="#products" class="footer-link">Cardápio</a>
+        </div>
+
+        <div class="footer-contact" id="footer-contact">
+          <!-- preenchido pelo script.js -->
+        </div>
+
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy" id="footer-copy"></p>
       </div>
     </footer>
 
@@ -364,5 +409,11 @@
 
   </div><!-- /#cart-page -->
 
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+    }
+  </script>
 </body>
 </html>

@@ -5,7 +5,10 @@
     "whatsapp": "5554999999999",
     "cidade": "Guaporé/RS",
     "instagram": "@turbocookies",
-    "horario": "Ter a Dom, 14h às 21h"
+    "horario": "Ter a Dom, 14h às 21h",
+    "horario_abertura": "14:00",
+    "horario_fechamento": "21:00",
+    "taxa_entrega": 10.00
   },
   "categorias": [
     {
