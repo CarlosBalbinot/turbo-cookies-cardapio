@@ -418,7 +418,7 @@ function criarCardHTML(produto, badge) {
     precoHtml = '<span style="display:inline-block;background:#E94560;color:#fff;font-size:.75rem;font-weight:700;padding:.2em .65em;border-radius:50px">Esgotado</span>'
   } else if (temVars) {
     var menor = Math.min.apply(null, vars.map(function (v) { return v.preco }))
-    precoHtml = ' formatPrice(menor) + '
+    precoHtml = '<span class="product-price">A partir de ' + formatPrice(menor) + '</span>'
   } else if (vars.length === 1) {
     precoHtml = '<span class="product-price">' + formatPrice(vars[0].preco) + '</span>'
   } else {
