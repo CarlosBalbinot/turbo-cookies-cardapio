@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
           (cores.destaque     ? '--cor-destaque:'     + cores.destaque     + ';' : '') +
           (cores.header       ? '--cor-header:'       + cores.header       + ';' : '') +
           (cores.texto_header ? '--cor-texto-header:' + cores.texto_header + ';' : '') +
+          (cores.hero         ? '--cor-hero:'         + cores.hero         + ';' : '') +
           '}'
         document.head.appendChild(styleEl)
       }
@@ -113,14 +114,18 @@ function renderBanner(dados) {
   if (!banner || !banner.ativo || !banner.texto) return
   if (banner.expira_em && new Date() >= new Date(banner.expira_em)) return
 
-  var catBar = document.getElementById('categories-bar')
-  if (!catBar) return
+  var header = document.getElementById('header')
+  if (!header) return
 
   var el = document.createElement('div')
   el.id = 'site-banner'
-  el.style.cssText = 'background:' + (banner.cor || '#C8813A') + ';color:#ffffff;text-align:center;padding:.65rem 1rem;font-size:.875rem;font-weight:600;letter-spacing:.01em'
+  el.style.background = banner.cor || ''
   el.textContent = banner.texto
-  catBar.parentNode.insertBefore(el, catBar)
+  document.body.insertBefore(el, header)
+
+  requestAnimationFrame(function () {
+    document.documentElement.style.setProperty('--banner-h', el.offsetHeight + 'px')
+  })
 }
 
 /*  Hero  */
@@ -375,7 +380,9 @@ function renderNavBlocos(blocos) {
   var sidebar   = document.getElementById('sidebar-nav')
   if (!container) return
 
-  container.innerHTML = blocos.map(function (bloco, idx) {
+  var blocosComTitulo = blocos.filter(function (b) { return b.titulo })
+
+  container.innerHTML = blocosComTitulo.map(function (bloco, idx) {
     return '<button class="category-pill' + (idx === 0 ? ' active' : '') + '" ' +
       'role="listitem" data-cat-id="bloco-' + bloco.id + '">' +
       esc(bloco.titulo) + '</button>'
@@ -391,7 +398,7 @@ function renderNavBlocos(blocos) {
   })
 
   if (sidebar) {
-    sidebar.innerHTML = blocos.map(function (bloco, idx) {
+    sidebar.innerHTML = blocosComTitulo.map(function (bloco, idx) {
       return '<button class="sidebar-pill' + (idx === 0 ? ' active' : '') + '" ' +
         'data-cat-id="bloco-' + bloco.id + '">' + esc(bloco.titulo) + '</button>'
     }).join('')
@@ -419,7 +426,7 @@ function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
     if (!prods.length) return ''
 
     return '<section class="category-section" id="cat-bloco-' + bloco.id + '" data-cat-id="bloco-' + bloco.id + '">' +
-      '<h2 class="category-title">' + esc(bloco.titulo) + '</h2>' +
+      (bloco.titulo ? '<h2 class="category-title">' + esc(bloco.titulo) + '</h2>' : '') +
       '<div class="products-list">' +
       prods.map(function (p) { return criarCardHTML(p, produtoBadge[p.id] || null) }).join('') +
       '</div></section>'
@@ -477,21 +484,18 @@ function criarCardHTML(produto, badge) {
 
   var badgeHtml = badge ? '<span class="product-badge">' + esc(badge) + '</span>' : ''
 
-  var inlineStyle = []
-  if (esgotado) inlineStyle.push('opacity:.5')
-  if (badge)    inlineStyle.push('padding-top:1.75rem')
-  var styleAttr = inlineStyle.length ? ' style="' + inlineStyle.join(';') + '"' : ''
+  var styleAttr = esgotado ? ' style="opacity:.5"' : ''
 
   return '<article class="product-card"' +
     (esgotado ? ' data-esgotado="true"' : '') +
     styleAttr +
     ' data-id="' + produto.id + '">' +
-    badgeHtml +
     '<div class="product-info">' +
     '<h3 class="product-name">' + esc(produto.nome) + '</h3>' +
     descHtml + precoHtml +
     '</div>' +
     '<div class="product-thumb">' +
+    badgeHtml +
     fotoHtml +
     '<button class="btn-add"' + (esgotado ? ' disabled style="cursor:default"' : '') + ' data-id="' + produto.id + '" ' +
     'aria-label="Adicionar ' + esc(produto.nome) + ' ao carrinho">+</button>' +
