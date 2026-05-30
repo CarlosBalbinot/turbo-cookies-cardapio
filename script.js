@@ -24,6 +24,17 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (dados) {
       estado.dados = dados
 
+      if (dados.loja && dados.loja.cores) {
+        var cores = dados.loja.cores
+        var styleEl = document.createElement('style')
+        styleEl.textContent = ':root{' +
+          (cores.destaque     ? '--cor-destaque:'     + cores.destaque     + ';' : '') +
+          (cores.header       ? '--cor-header:'       + cores.header       + ';' : '') +
+          (cores.texto_header ? '--cor-texto-header:' + cores.texto_header + ';' : '') +
+          '}'
+        document.head.appendChild(styleEl)
+      }
+
       var loading = document.getElementById('loading')
       if (loading) loading.style.display = 'none'
       var app = document.getElementById('app')
@@ -60,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var loadingEl = document.getElementById('loading')
       if (loadingEl) loadingEl.innerHTML =
         '<div style="text-align:center;padding:2rem;font-family:system-ui">' +
-        '<p style="font-size:3rem;margin-bottom:1rem">🍪</p>' +
+        '<div style="display:flex;justify-content:center;margin-bottom:1rem">' + cookieSVG(48) + '</div>' +
         '<p style="font-size:1rem;color:#1D1D1F;margin-bottom:.5rem">' +
         'Não foi possível carregar o cardápio</p>' +
         '<p style="font-size:.8rem;color:#6E6E73;margin-bottom:1.5rem">' +
@@ -164,7 +175,15 @@ function renderFooter(loja) {
 
   if (nomeEl)   nomeEl.textContent   = loja.nome   || ''
   if (sloganEl) sloganEl.textContent = loja.slogan || ''
-  if (cityEl)   cityEl.textContent   = loja.cidade || ''
+  if (cityEl) {
+    cityEl.textContent = loja.cidade || ''
+    if (loja.endereco) {
+      var endEl = document.createElement('p')
+      endEl.style.cssText = 'font-size:.8rem;opacity:.7;margin:.15rem 0 0'
+      endEl.textContent = loja.endereco
+      cityEl.insertAdjacentElement('afterend', endEl)
+    }
+  }
   if (copyEl)   copyEl.textContent   = '© ' + new Date().getFullYear() + ' ' + (loja.nome || 'Turbo Cookies') + ' · Todos os direitos reservados'
 
   var contact = document.getElementById('footer-contact')
@@ -458,9 +477,17 @@ function criarCardHTML(produto, badge) {
 
   var badgeHtml = badge ? '<span class="product-badge">' + esc(badge) + '</span>' : ''
 
-  return '<article class="product-card"' + (esgotado ? ' data-esgotado="true" style="opacity:.5"' : '') + ' data-id="' + produto.id + '">' +
-    '<div class="product-info">' +
+  var inlineStyle = []
+  if (esgotado) inlineStyle.push('opacity:.5')
+  if (badge)    inlineStyle.push('padding-top:1.75rem')
+  var styleAttr = inlineStyle.length ? ' style="' + inlineStyle.join(';') + '"' : ''
+
+  return '<article class="product-card"' +
+    (esgotado ? ' data-esgotado="true"' : '') +
+    styleAttr +
+    ' data-id="' + produto.id + '">' +
     badgeHtml +
+    '<div class="product-info">' +
     '<h3 class="product-name">' + esc(produto.nome) + '</h3>' +
     descHtml + precoHtml +
     '</div>' +
@@ -734,7 +761,10 @@ function renderizarItensCarrinho() {
         '<span class="cart-qty-value">' + item.quantidade + '</span>' +
         '<button class="cart-qty-btn" data-action="inc" data-idx="' + idx + '" aria-label="Aumentar">+</button>' +
         '<span class="cart-item-price">' + formatPrice(item.preco * item.quantidade) + '</span>' +
-        '<button class="cart-remove-btn" data-idx="' + idx + '" aria-label="Remover item">🗑</button>' +
+        '<button class="cart-remove-btn" data-idx="' + idx + '" aria-label="Remover item">' +
+        '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">' +
+        '<path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"/>' +
+        '</svg></button>' +
         '</div></div>'
     }).join('')
 
@@ -858,21 +888,21 @@ function finalizarPedido() {
     : 'Retirada na loja: grátis'
 
   var infoEntregaPag =
-    '\n📦 ' + (isEntrega ? 'Entrega em domicílio' : 'Retirada na loja') +
-    (isEntrega && endereco ? '\n📍 Endereço: ' + endereco : '') +
-    '\n💳 Pagamento: ' + (pagNomes[pagamento] || pagamento) +
-    (pagamento === 'dinheiro' && troco ? '\n💵 Troco para: ' + troco : '')
+    '\n' + (isEntrega ? 'Entrega em domicílio' : 'Retirada na loja') +
+    (isEntrega && endereco ? '\nEndereço: ' + endereco : '') +
+    '\nPagamento: ' + (pagNomes[pagamento] || pagamento) +
+    (pagamento === 'dinheiro' && troco ? '\nTroco para: ' + troco : '')
 
   var msg =
-    'Olá, Turbo Cookies! 🍪\n\n' +
+    'Olá, Turbo Cookies!\n\n' +
     '*Pedido de ' + nome + ':*\n\n' +
     linhasItens + '\n\n' +
     'Subtotal: ' + formatPrice(t.subtotal) + '\n' +
     linhaEntrega + '\n' +
     '*Total: ' + formatPrice(t.total) + '*' +
     infoEntregaPag + '\n\n' +
-    '📱 Meu WhatsApp: ' + formatarExibicaoWhatsApp(numCliente) +
-    (obs ? '\n📝 Obs: ' + obs : '')
+    'Meu WhatsApp: ' + formatarExibicaoWhatsApp(numCliente) +
+    (obs ? '\nObs: ' + obs : '')
 
   var wppLoja = (estado.dados.loja.whatsapp || '').replace(/\D/g, '')
   window.open(
