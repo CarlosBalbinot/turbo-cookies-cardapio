@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       renderHero(dados.loja)
       renderFooter(dados.loja)
+      renderBanner(dados)
 
       var blocos = dados.blocos
       var temBlocos = Array.isArray(blocos) && blocos.length > 0
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'Não foi possível carregar o cardápio</p>' +
         '<p style="font-size:.8rem;color:#6E6E73;margin-bottom:1.5rem">' +
         esc(err.message) + '</p>' +
-        '<button onclick="location.reload()" style="background:#E94560;color:white;' +
+        '<button onclick="location.reload()" style="background:#C8813A;color:white;' +
         'border:none;padding:.75rem 1.5rem;border-radius:50px;font-size:.9rem;cursor:pointer">' +
         'Tentar novamente</button></div>'
     })
@@ -95,6 +96,22 @@ function cookieSVG(size) {
     '</svg>'
 }
 
+/*  Banner promocional  */
+function renderBanner(dados) {
+  var banner = dados.banner
+  if (!banner || !banner.ativo || !banner.texto) return
+  if (banner.expira_em && new Date() >= new Date(banner.expira_em)) return
+
+  var catBar = document.getElementById('categories-bar')
+  if (!catBar) return
+
+  var el = document.createElement('div')
+  el.id = 'site-banner'
+  el.style.cssText = 'background:' + (banner.cor || '#C8813A') + ';color:#ffffff;text-align:center;padding:.65rem 1rem;font-size:.875rem;font-weight:600;letter-spacing:.01em'
+  el.textContent = banner.texto
+  catBar.parentNode.insertBefore(el, catBar)
+}
+
 /*  Hero  */
 function renderHero(loja) {
   var titulo = document.getElementById('hero-title')
@@ -121,12 +138,16 @@ function renderHero(loja) {
     var taxaTxt = loja.taxa_entrega > 0 ? 'Entrega ' + formatPrice(loja.taxa_entrega) : 'Entrega grátis'
     chipList.push('<span class="hero-chip" role="listitem">' + svgMto + '<span>' + taxaTxt + '</span></span>')
   }
-  if (loja.horario_abertura && loja.horario_fechamento) {
+  if (loja.fechada === true) {
+    var svgNo = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>'
+    var stTxt = loja.fechada_motivo ? esc(loja.fechada_motivo) : 'Fechado'
+    chipList.push('<span class="hero-chip hero-chip--closed" role="listitem">' + svgNo + '<span>' + stTxt + '</span></span>')
+  } else if (loja.horario_abertura && loja.horario_fechamento) {
     var aberto   = verificarHorario(loja.horario_abertura, loja.horario_fechamento)
-    var svgOk    = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
+    var dotOpen  = '<span style="width:7px;height:7px;border-radius:50%;background:#4CD964;display:inline-block;margin-right:2px;animation:pulse 2s infinite" aria-hidden="true"></span>'
     var svgNo    = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>'
     var stClass  = aberto ? 'hero-chip--open' : 'hero-chip--closed'
-    var stIcon   = aberto ? svgOk : svgNo
+    var stIcon   = aberto ? dotOpen : svgNo
     var stTxt    = aberto ? 'Aberto agora' : ('Abre às ' + esc(loja.horario_abertura))
     chipList.push('<span class="hero-chip ' + stClass + '" role="listitem">' + stIcon + '<span>' + stTxt + '</span></span>')
   }
