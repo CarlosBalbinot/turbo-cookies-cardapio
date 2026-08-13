@@ -8,7 +8,14 @@
     "horario": "Ter a Dom, 14h às 21h",
     "horario_abertura": "14:00",
     "horario_fechamento": "21:00",
-    "taxa_entrega": 10.00
+    "taxa_entrega": 10.00,
+    "endereco": "Rua das Cookies, 123 - Centro",
+    "horarios": {
+      "Segunda a Sexta": "12h20 às 18h30",
+      "Sábado": "13h00 às 17h30",
+      "Domingo": "Fechado"
+    },
+    "formas_pagamento": ["PIX", "Cartão", "Dinheiro"]
   },
   "categorias": [
     {

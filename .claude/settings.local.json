@@ -3,7 +3,13 @@
     "allow": [
       "Bash(Start-Process *)",
       "PowerShell(Start-Process \"D:\\\\Estudos - VSC\\\\TurboCookiesCardapio\\\\index.html\")",
-      "Bash(powershell *)"
+      "Bash(powershell *)",
+      "Bash(node -c script.js)",
+      "Bash(chromium-cli --help)",
+      "Bash(node -e \"require\\('playwright'\\); console.log\\('playwright ok'\\)\")",
+      "Bash(npm ls *)",
+      "Bash(node *)",
+      "Bash(curl -s http://localhost:8791/debug.html)"
     ]
   }
 }

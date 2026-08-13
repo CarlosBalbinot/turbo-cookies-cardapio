@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
           (cores.destaque     ? '--cor-destaque:'     + cores.destaque     + ';' : '') +
           (cores.header       ? '--cor-header:'       + cores.header       + ';' : '') +
           (cores.texto_header ? '--cor-texto-header:' + cores.texto_header + ';' : '') +
-          (cores.hero         ? '--cor-hero:'         + cores.hero         + ';' : '') +
           '}'
         document.head.appendChild(styleEl)
       }
@@ -42,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (app) app.removeAttribute('hidden')
 
       renderHero(dados.loja)
-      renderFooter(dados.loja)
+      renderSobre(dados.loja)
       renderBanner(dados)
 
       var blocos = dados.blocos
@@ -77,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'Não foi possível carregar o cardápio</p>' +
         '<p style="font-size:.8rem;color:#6E6E73;margin-bottom:1.5rem">' +
         esc(err.message) + '</p>' +
-        '<button onclick="location.reload()" style="background:#C8813A;color:white;' +
+        '<button onclick="location.reload()" style="background:#C62828;color:white;' +
         'border:none;padding:.75rem 1.5rem;border-radius:50px;font-size:.9rem;cursor:pointer">' +
         'Tentar novamente</button></div>'
     })
@@ -128,89 +127,160 @@ function renderBanner(dados) {
   })
 }
 
-/*  Hero  */
+/*  Header (nome da loja + status)  */
 function renderHero(loja) {
-  var titulo = document.getElementById('hero-title')
-  var sub    = document.getElementById('hero-subtitle')
-  if (titulo) titulo.textContent = loja.nome || ''
-  if (sub)    sub.textContent   = loja.slogan || ''
+  var nomeEl = document.getElementById('header-store-name')
+  if (nomeEl) nomeEl.textContent = loja.nome || ''
 
-  var chips = document.getElementById('hero-chips')
-  if (!chips) return
+  var logoEl = document.getElementById('header-logo-img')
+  if (logoEl) logoEl.alt = loja.nome || ''
 
-  var svgPin = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'
-  var svgClk = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>'
-  var svgMto = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5 1.96 2.5H17V9.5h2.5zM7 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2.22-3c-.55-.61-1.35-1-2.22-1s-1.67.39-2.22 1H3V6h12v9H9.22zM17 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>'
+  var statusEl = document.getElementById('header-status-tag')
+  if (!statusEl) return
 
-  var chipList = []
-
-  if (loja.cidade) {
-    chipList.push('<span class="hero-chip" role="listitem">' + svgPin + '<span>' + esc(loja.cidade) + '</span></span>')
+  var fechada = loja.fechada === true
+  if (!fechada && loja.horario_abertura && loja.horario_fechamento) {
+    fechada = !verificarHorario(loja.horario_abertura, loja.horario_fechamento)
   }
-  if (loja.horario) {
-    chipList.push('<span class="hero-chip" role="listitem">' + svgClk + '<span>' + esc(loja.horario) + '</span></span>')
-  }
-  if (loja.taxa_entrega !== undefined) {
-    var taxaTxt = loja.taxa_entrega > 0 ? 'Entrega ' + formatPrice(loja.taxa_entrega) : 'Entrega grátis'
-    chipList.push('<span class="hero-chip" role="listitem">' + svgMto + '<span>' + taxaTxt + '</span></span>')
-  }
-  if (loja.fechada === true) {
-    var svgNo = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>'
-    var stTxt = loja.fechada_motivo ? esc(loja.fechada_motivo) : 'Fechado'
-    chipList.push('<span class="hero-chip hero-chip--closed" role="listitem">' + svgNo + '<span>' + stTxt + '</span></span>')
-  } else if (loja.horario_abertura && loja.horario_fechamento) {
-    var aberto   = verificarHorario(loja.horario_abertura, loja.horario_fechamento)
-    var dotOpen  = '<span style="width:7px;height:7px;border-radius:50%;background:#4CD964;display:inline-block;margin-right:2px;animation:pulse 2s infinite" aria-hidden="true"></span>'
-    var svgNo    = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>'
-    var stClass  = aberto ? 'hero-chip--open' : 'hero-chip--closed'
-    var stIcon   = aberto ? dotOpen : svgNo
-    var stTxt    = aberto ? 'Aberto agora' : ('Abre às ' + esc(loja.horario_abertura))
-    chipList.push('<span class="hero-chip ' + stClass + '" role="listitem">' + stIcon + '<span>' + stTxt + '</span></span>')
-  }
-
-  chips.innerHTML = chipList.join('')
+  statusEl.textContent = fechada ? 'Fechada' : 'Aberta'
 }
 
-/*  Footer  */
-function renderFooter(loja) {
-  var nomeEl   = document.getElementById('footer-name')
-  var sloganEl = document.getElementById('footer-slogan')
-  var cityEl   = document.getElementById('footer-city')
-  var copyEl   = document.getElementById('footer-copy')
+/*  Tela "Sobre a loja"  */
+function renderSobre(loja) {
+  var container = document.getElementById('about-body')
+  if (!container) return
 
-  if (nomeEl)   nomeEl.textContent   = loja.nome   || ''
-  if (sloganEl) sloganEl.textContent = loja.slogan || ''
-  if (cityEl) {
-    cityEl.textContent = loja.cidade || ''
-    if (loja.endereco) {
-      var endEl = document.createElement('p')
-      endEl.style.cssText = 'font-size:.8rem;opacity:.7;margin:.15rem 0 0'
-      endEl.textContent = loja.endereco
-      cityEl.insertAdjacentElement('afterend', endEl)
+  var svgPin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+  var svgClk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+  var svgCoin = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2h.5a2.5 2.5 0 0 0 0-5h-1a2.5 2.5 0 0 1 0-5h.5a2.5 2.5 0 0 1 2.5 2"/><line x1="12" y1="6" x2="12" y2="18"/></svg>'
+
+  var html = ''
+
+  html += '<div class="about-section about-section-store">' +
+    '<span class="about-store-name">' + esc(loja.nome || '') + '</span>' +
+    '<span class="header-tag">Sobremesas</span>' +
+    '</div>'
+
+  if (loja.endereco) {
+    html += '<div class="about-section">' +
+      '<div class="about-section-title">' + svgPin + '<span>Endereço</span></div>' +
+      '<p class="about-section-text">' + esc(loja.endereco) + '</p>' +
+      '</div>'
+  }
+
+  if (loja.horarios && typeof loja.horarios === 'object') {
+    var dias = Object.keys(loja.horarios)
+    if (dias.length > 0) {
+      html += '<div class="about-section">' +
+        '<div class="about-section-title">' + svgClk + '<span>Horário de funcionamento</span></div>' +
+        dias.map(function (dia) {
+          return '<div class="about-hours-row">' +
+            '<span class="about-hours-day">' + esc(dia) + '</span>' +
+            '<span class="about-hours-value">' + esc(loja.horarios[dia]) + '</span>' +
+            '</div>'
+        }).join('') +
+        '</div>'
     }
   }
-  if (copyEl)   copyEl.textContent   = '© ' + new Date().getFullYear() + ' ' + (loja.nome || 'Turbo Cookies') + ' · Todos os direitos reservados'
 
-  var contact = document.getElementById('footer-contact')
-  if (!contact) return
-
-  var svgWpp = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.998 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5.008L2.007 22l5.137-1.302A9.954 9.954 0 0 0 11.998 22c5.523 0 10-4.477 10-10S17.521 2 11.998 2zm0 18.001a7.96 7.96 0 0 1-4.09-1.126l-.293-.174-3.046.772.806-2.967-.191-.305A7.956 7.956 0 0 1 4 12c0-4.41 3.589-8 7.998-8 4.41 0 8 3.59 8 8s-3.59 8-8 8z"/></svg>'
-  var svgInsta = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>'
-
-  var html = '<h3 class="footer-col-title">Contato</h3>'
-
-  if (loja.whatsapp) {
-    var wppNum = loja.whatsapp.replace(/\D/g, '')
-    html += '<a href="https://wa.me/' + wppNum + '" class="footer-link" target="_blank" rel="noopener noreferrer">' +
-      svgWpp + '<span>' + esc(formatarExibicaoWhatsApp(wppNum)) + '</span></a>'
-  }
-  if (loja.instagram) {
-    var handle = loja.instagram.replace(/^@/, '')
-    html += '<a href="https://instagram.com/' + encodeURIComponent(handle) + '" class="footer-link" target="_blank" rel="noopener noreferrer">' +
-      svgInsta + '<span>' + esc(loja.instagram) + '</span></a>'
+  if (Array.isArray(loja.formas_pagamento) && loja.formas_pagamento.length > 0) {
+    html += '<div class="about-section">' +
+      '<div class="about-section-title">' + svgCoin + '<span>Formas de Pagamento</span></div>' +
+      '<p class="about-payment-sub">Pagamento na entrega</p>' +
+      '<div class="about-payment-list">' +
+      loja.formas_pagamento.map(function (fp) {
+        return '<span class="about-payment-item">' + esc(fp) + '</span>'
+      }).join('') +
+      '</div></div>'
   }
 
-  contact.innerHTML = html
+  container.innerHTML = html
+}
+
+function abrirSobre() {
+  var el = document.getElementById('about-page')
+  if (el) {
+    el.classList.add('active')
+    el.setAttribute('aria-hidden', 'false')
+  }
+  document.body.style.overflow = 'hidden'
+}
+
+function fecharSobre() {
+  var el = document.getElementById('about-page')
+  if (el) {
+    el.classList.remove('active')
+    el.setAttribute('aria-hidden', 'true')
+  }
+  document.body.style.overflow = ''
+}
+
+/*  Barra de navegação inferior  */
+function ativarAbaNav(aba) {
+  var mapaIds = { cardapio: 'nav-cardapio', busca: 'nav-busca', entrar: 'nav-entrar' }
+  Object.keys(mapaIds).forEach(function (key) {
+    var btn = document.getElementById(mapaIds[key])
+    if (btn) btn.classList.toggle('active', key === aba)
+  })
+
+  var searchPageEl = document.getElementById('search-page')
+  if (!searchPageEl) return
+
+  var abrirBusca = aba === 'busca'
+  searchPageEl.classList.toggle('active', abrirBusca)
+  searchPageEl.setAttribute('aria-hidden', abrirBusca ? 'false' : 'true')
+  document.body.style.overflow = abrirBusca ? 'hidden' : ''
+
+  if (abrirBusca) {
+    var inputEl = document.getElementById('search-input')
+    if (inputEl) {
+      inputEl.focus()
+      executarBusca(inputEl.value)
+    }
+  }
+}
+
+/*  Busca  */
+function obterTodosProdutos() {
+  if (estado.todosOsProdutos) {
+    return Object.keys(estado.todosOsProdutos).map(function (id) {
+      return estado.todosOsProdutos[id]
+    })
+  }
+  var lista = []
+  var cats = (estado.dados && estado.dados.categorias) || []
+  for (var i = 0; i < cats.length; i++) {
+    var prods = cats[i].produtos || []
+    for (var j = 0; j < prods.length; j++) lista.push(prods[j])
+  }
+  return lista
+}
+
+function executarBusca(query) {
+  var resultsEl = document.getElementById('search-results')
+  if (!resultsEl) return
+
+  var termo = (query || '').trim()
+  if (!termo) {
+    resultsEl.innerHTML = '<div class="search-empty">Digite o nome do produto</div>'
+    return
+  }
+
+  var termoLower = termo.toLowerCase()
+  var encontrados = obterTodosProdutos().filter(function (p) {
+    var nome = (p.nome || '').toLowerCase()
+    var desc = (p.descricao || '').toLowerCase()
+    return nome.indexOf(termoLower) !== -1 || desc.indexOf(termoLower) !== -1
+  })
+
+  if (encontrados.length === 0) {
+    resultsEl.innerHTML = '<div class="search-empty">Nenhum produto encontrado</div>'
+    return
+  }
+
+  resultsEl.innerHTML = '<div class="products-list">' +
+    encontrados.map(function (p) { return criarCardHTML(p, null) }).join('') +
+    '</div>'
 }
 
 /* ─── Categorias (pills + sidebar) ──────────────────────── */
@@ -292,27 +362,41 @@ function renderProdutos(categorias) {
       '</div></section>'
   }).join('')
 
-  main.addEventListener('click', function (e) {
-    var btnAdd = e.target.closest('.btn-add')
-    if (btnAdd && !btnAdd.disabled) {
-      e.stopPropagation()
-      var produto = encontrarProduto(parseInt(btnAdd.dataset.id, 10))
-      if (!produto) return
-      animacaoBtnAdd(btnAdd)
-      if (produto.variacoes && produto.variacoes.length > 0) {
-        abrirSheet(produto)
-      } else {
-        adicionarAoCarrinho(produto, null, 1)
-      }
-      return
-    }
+  main.addEventListener('click', manipularCliqueProdutos)
+}
 
-    var card = e.target.closest('.product-card')
-    if (card && !card.dataset.esgotado) {
-      var produto = encontrarProduto(parseInt(card.dataset.id, 10))
-      if (produto) abrirSheet(produto)
+/* ─── Clique em produtos (delegação compartilhada) ───────── */
+function manipularCliqueProdutos(e) {
+  var verMais = e.target.closest('.ver-mais-link')
+  if (verMais) {
+    e.stopPropagation()
+    var descEl = verMais.previousElementSibling
+    if (descEl && descEl.classList.contains('product-desc')) {
+      var expandido = descEl.classList.toggle('desc-expanded')
+      verMais.textContent = expandido ? 'Ver menos' : 'Ver mais'
     }
-  })
+    return
+  }
+
+  var btnAdd = e.target.closest('.btn-add')
+  if (btnAdd && !btnAdd.disabled) {
+    e.stopPropagation()
+    var produto = encontrarProduto(parseInt(btnAdd.dataset.id, 10))
+    if (!produto) return
+    animacaoBtnAdd(btnAdd)
+    if (produto.variacoes && produto.variacoes.length > 0) {
+      abrirSheet(produto)
+    } else {
+      adicionarAoCarrinho(produto, null, 1)
+    }
+    return
+  }
+
+  var card = e.target.closest('.product-card')
+  if (card && !card.dataset.esgotado) {
+    var produto = encontrarProduto(parseInt(card.dataset.id, 10))
+    if (produto) abrirSheet(produto)
+  }
 }
 
 /* ─── Blocos customizáveis ───────────────────────────────── */
@@ -432,27 +516,7 @@ function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
       '</div></section>'
   }).join('')
 
-  main.addEventListener('click', function (e) {
-    var btnAdd = e.target.closest('.btn-add')
-    if (btnAdd && !btnAdd.disabled) {
-      e.stopPropagation()
-      var produto = encontrarProduto(parseInt(btnAdd.dataset.id, 10))
-      if (!produto) return
-      animacaoBtnAdd(btnAdd)
-      if (produto.variacoes && produto.variacoes.length > 0) {
-        abrirSheet(produto)
-      } else {
-        adicionarAoCarrinho(produto, null, 1)
-      }
-      return
-    }
-
-    var card = e.target.closest('.product-card')
-    if (card && !card.dataset.esgotado) {
-      var produto = encontrarProduto(parseInt(card.dataset.id, 10))
-      if (produto) abrirSheet(produto)
-    }
-  })
+  main.addEventListener('click', manipularCliqueProdutos)
 }
 
 function criarCardHTML(produto, badge) {
@@ -478,9 +542,12 @@ function criarCardHTML(produto, badge) {
       '<div class="thumb-placeholder" style="display:none" aria-hidden="true">' + cookieSVG(28) + '</div>'
     : '<div class="thumb-placeholder" aria-hidden="true">' + cookieSVG(28) + '</div>'
 
-  var descHtml = produto.descricao
-    ? '<p class="product-desc">' + esc(produto.descricao) + '</p>'
-    : ''
+  var descHtml = ''
+  if (produto.descricao) {
+    var descLonga = produto.descricao.length > 60
+    descHtml = '<p class="product-desc">' + esc(produto.descricao) + '</p>' +
+      (descLonga ? '<span class="ver-mais-link">Ver mais</span>' : '')
+  }
 
   var badgeHtml = badge ? '<span class="product-badge">' + esc(badge) + '</span>' : ''
 
@@ -682,7 +749,10 @@ function calcularTotais() {
     return s + i.preco * i.quantidade
   }, 0)
   var tipoEl  = document.getElementById('tipo-entrega')
-  var entrega = (tipoEl && !tipoEl.checked) ? 0.00 : 10.00
+  var taxaEntrega = (estado.dados && estado.dados.loja && estado.dados.loja.taxa_entrega != null)
+    ? Number(estado.dados.loja.taxa_entrega)
+    : 10.00
+  var entrega = (tipoEl && !tipoEl.checked) ? 0.00 : taxaEntrega
   var total   = subtotal + entrega
   var totalItens = estado.carrinho.reduce(function (s, i) {
     return s + i.quantidade
@@ -694,27 +764,27 @@ function atualizarUICarrinho() {
   var t       = calcularTotais()
   var temItens = t.totalItens > 0
 
-  var badge = document.getElementById('cart-badge')
-  if (badge) {
-    badge.textContent = t.totalItens
-    badge.classList.toggle('visible', temItens)
+  var floatBtn = document.getElementById('cart-float-btn')
+  if (floatBtn) {
+    floatBtn.classList.toggle('visible', temItens)
+    floatBtn.setAttribute('aria-hidden', temItens ? 'false' : 'true')
   }
 
-  var cartBar = document.getElementById('cart-bar')
-  if (cartBar) {
-    cartBar.classList.toggle('visible', temItens)
-    cartBar.setAttribute('aria-hidden', temItens ? 'false' : 'true')
-  }
-
-  var countEl = document.getElementById('cart-bar-count')
+  var countEl = document.getElementById('cart-float-count')
   if (countEl) countEl.textContent = t.totalItens + ' ' + (t.totalItens === 1 ? 'item' : 'itens')
 
-  var totalBarEl = document.getElementById('cart-bar-total')
-  if (totalBarEl) totalBarEl.textContent = formatPrice(t.total)
+  var totalEl = document.getElementById('cart-float-total')
+  if (totalEl) totalEl.textContent = 'Ver pedido · ' + formatPrice(t.total) + ' →'
 }
 
 /* ─── Página do carrinho ─────────────────────────────────── */
 function abrirCarrinho() {
+  var labelTaxa = document.getElementById('label-taxa-entrega')
+  if (labelTaxa && estado.dados && estado.dados.loja) {
+    var taxa = Number(estado.dados.loja.taxa_entrega || 10)
+    labelTaxa.textContent = taxa > 0 ? '+' + formatPrice(taxa) : 'grátis'
+  }
+
   renderizarItensCarrinho()
 
   var nomeSalvo  = localStorage.getItem('tc_nome')
@@ -802,6 +872,12 @@ function atualizarResumo() {
 
 /* ─── Finalizar pedido ───────────────────────────────────── */
 function finalizarPedido() {
+  if (estado.dados && estado.dados.loja && estado.dados.loja.fechada === true) {
+    var motivo = estado.dados.loja.fechada_motivo || 'A loja está fechada no momento.'
+    alert(motivo + '\n\nNão é possível finalizar o pedido agora.')
+    return
+  }
+
   var nomeInput  = document.getElementById('customer-name')
   var whatsInput = document.getElementById('customer-whatsapp')
   var obsInput   = document.getElementById('obs-input')
@@ -973,12 +1049,12 @@ function iniciarHeaderScroll() {
 
 /* ─── Animações ──────────────────────────────────────────── */
 function animacaoBadge() {
-  var badge = document.getElementById('cart-badge')
-  if (!badge) return
-  badge.classList.remove('bounce')
-  void badge.offsetWidth
-  badge.classList.add('bounce')
-  setTimeout(function () { badge.classList.remove('bounce') }, 400)
+  var btn = document.getElementById('cart-float-btn')
+  if (!btn) return
+  btn.classList.remove('bounce')
+  void btn.offsetWidth
+  btn.classList.add('bounce')
+  setTimeout(function () { btn.classList.remove('bounce') }, 400)
 }
 
 function animacaoBtnAdd(btn) {
@@ -1045,17 +1121,40 @@ function encontrarProduto(id) {
 function registrarEventos() {
   iniciarHeaderScroll()
 
-  // Header → abrir carrinho
-  var headerCartBtn = document.getElementById('header-cart-btn')
-  if (headerCartBtn) headerCartBtn.addEventListener('click', abrirCarrinho)
-
-  // Cart bar → abrir carrinho
-  var cartBar = document.getElementById('cart-bar')
-  if (cartBar) cartBar.addEventListener('click', abrirCarrinho)
+  // Botão flutuante do carrinho → abrir carrinho
+  var cartFloatBtn = document.getElementById('cart-float-btn')
+  if (cartFloatBtn) cartFloatBtn.addEventListener('click', abrirCarrinho)
 
   // Botão voltar
   var backBtn = document.getElementById('cart-back-btn')
   if (backBtn) backBtn.addEventListener('click', fecharCarrinho)
+
+  // Header → seta "Sobre a loja"
+  var aboutBtn = document.getElementById('header-about-btn')
+  if (aboutBtn) aboutBtn.addEventListener('click', abrirSobre)
+
+  var aboutBackBtn = document.getElementById('about-back-btn')
+  if (aboutBackBtn) aboutBackBtn.addEventListener('click', fecharSobre)
+
+  // Barra de navegação inferior
+  var navCardapio = document.getElementById('nav-cardapio')
+  var navBusca    = document.getElementById('nav-busca')
+  var navEntrar   = document.getElementById('nav-entrar')
+
+  if (navCardapio) navCardapio.addEventListener('click', function () { ativarAbaNav('cardapio') })
+  if (navBusca)    navBusca.addEventListener('click', function () { ativarAbaNav('busca') })
+  if (navEntrar)   navEntrar.addEventListener('click', function () { ativarAbaNav('entrar') })
+
+  // Busca
+  var searchInput  = document.getElementById('search-input')
+  var searchCancel = document.getElementById('search-cancel-btn')
+  if (searchInput) searchInput.addEventListener('input', function () {
+    executarBusca(searchInput.value)
+  })
+  if (searchCancel) searchCancel.addEventListener('click', function () { ativarAbaNav('cardapio') })
+
+  var searchResults = document.getElementById('search-results')
+  if (searchResults) searchResults.addEventListener('click', manipularCliqueProdutos)
 
   // Finalizar pedido
   var checkoutBtn = document.getElementById('btn-checkout')
@@ -1141,9 +1240,13 @@ function registrarEventos() {
     if (e.key !== 'Escape') return
     var sheetEscEl    = document.getElementById('variations-sheet')
     var cartEscEl     = document.getElementById('cart-page')
+    var aboutEscEl    = document.getElementById('about-page')
     var sheetAtivo    = sheetEscEl ? sheetEscEl.classList.contains('active') : false
     var carrinhoAtivo = cartEscEl ? cartEscEl.classList.contains('active') : false
-    if (sheetAtivo)        fecharSheet()
+    var aboutAtivo    = aboutEscEl ? aboutEscEl.classList.contains('active') : false
+    if (sheetAtivo)         fecharSheet()
     else if (carrinhoAtivo) fecharCarrinho()
+    else if (aboutAtivo)    fecharSobre()
+    else                    ativarAbaNav('cardapio')
   })
 }
