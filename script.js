@@ -217,7 +217,7 @@ function fecharSobre() {
 
 /*  Barra de navegação inferior  */
 function ativarAbaNav(aba) {
-  var mapaIds = { cardapio: 'nav-cardapio', busca: 'nav-busca', entrar: 'nav-entrar' }
+  var mapaIds = { cardapio: 'nav-cardapio', busca: 'nav-busca' }
   Object.keys(mapaIds).forEach(function (key) {
     var btn = document.getElementById(mapaIds[key])
     if (btn) btn.classList.toggle('active', key === aba)
@@ -281,6 +281,7 @@ function executarBusca(query) {
   resultsEl.innerHTML = '<div class="products-list">' +
     encontrados.map(function (p) { return criarCardHTML(p, null) }).join('') +
     '</div>'
+  requestAnimationFrame(function () { ajustarVerMais(resultsEl) })
 }
 
 /* ─── Categorias (pills + sidebar) ──────────────────────── */
@@ -363,6 +364,26 @@ function renderProdutos(categorias) {
   }).join('')
 
   main.addEventListener('click', manipularCliqueProdutos)
+  requestAnimationFrame(function () { ajustarVerMais(main) })
+}
+
+/* ─── "Ver mais" condicional (só se a descrição truncar) ─── */
+function ajustarVerMais(container) {
+  var alvo  = container || document
+  var descs = alvo.querySelectorAll('.product-desc')
+  descs.forEach(function (el) {
+    var link = el.nextElementSibling
+    if (!link || !link.classList.contains('ver-mais-link')) return
+
+    var alturaClamped = el.clientHeight
+    el.style.webkitLineClamp = 'unset'
+    el.style.display = 'block'
+    var alturaNatural = el.scrollHeight
+    el.style.webkitLineClamp = ''
+    el.style.display = ''
+
+    link.classList.toggle('hidden', alturaNatural <= alturaClamped)
+  })
 }
 
 /* ─── Clique em produtos (delegação compartilhada) ───────── */
@@ -517,6 +538,7 @@ function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
   }).join('')
 
   main.addEventListener('click', manipularCliqueProdutos)
+  requestAnimationFrame(function () { ajustarVerMais(main) })
 }
 
 function criarCardHTML(produto, badge) {
@@ -544,9 +566,8 @@ function criarCardHTML(produto, badge) {
 
   var descHtml = ''
   if (produto.descricao) {
-    var descLonga = produto.descricao.length > 60
     descHtml = '<p class="product-desc">' + esc(produto.descricao) + '</p>' +
-      (descLonga ? '<span class="ver-mais-link">Ver mais</span>' : '')
+      '<span class="ver-mais-link hidden">Ver mais</span>'
   }
 
   var badgeHtml = badge ? '<span class="product-badge">' + esc(badge) + '</span>' : ''
@@ -1139,11 +1160,9 @@ function registrarEventos() {
   // Barra de navegação inferior
   var navCardapio = document.getElementById('nav-cardapio')
   var navBusca    = document.getElementById('nav-busca')
-  var navEntrar   = document.getElementById('nav-entrar')
 
   if (navCardapio) navCardapio.addEventListener('click', function () { ativarAbaNav('cardapio') })
   if (navBusca)    navBusca.addEventListener('click', function () { ativarAbaNav('busca') })
-  if (navEntrar)   navEntrar.addEventListener('click', function () { ativarAbaNav('entrar') })
 
   // Busca
   var searchInput  = document.getElementById('search-input')
