@@ -290,7 +290,7 @@ function renderCategorias(categorias) {
   var sidebar   = document.getElementById('sidebar-nav')
   if (!container) return
 
-  var visiveis = categorias.filter(function (c) {
+  var visiveis = (categorias || []).filter(function (c) {
     return c.visivel_cardapio !== false
   })
 
@@ -346,11 +346,11 @@ function renderProdutos(categorias) {
   var main = document.getElementById('products')
   if (!main) return
 
-  var visiveis = categorias.filter(function (c) {
+  var visiveis = (categorias || []).filter(function (c) {
     return c.visivel_cardapio !== false
   })
 
-  main.innerHTML = visiveis.map(function (cat) {
+  var secoesHtml = visiveis.map(function (cat) {
     var prods = (cat.produtos || []).filter(function (p) {
       return p.visivel_cardapio !== false
     })
@@ -362,6 +362,8 @@ function renderProdutos(categorias) {
       prods.map(criarCardHTML).join('') +
       '</div></section>'
   }).join('')
+
+  main.innerHTML = secoesHtml || '<div class="search-empty">Nenhum produto disponível no momento</div>'
 
   main.addEventListener('click', manipularCliqueProdutos)
   requestAnimationFrame(function () { ajustarVerMais(main) })
@@ -523,7 +525,7 @@ function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
   var main = document.getElementById('products')
   if (!main) return
 
-  main.innerHTML = blocos.map(function (bloco) {
+  var secoesHtml = blocos.map(function (bloco) {
     var prods = (bloco._prodIds || [])
       .map(function (pid) { return todosProdutos[pid] })
       .filter(function (p) { return p && p.visivel_cardapio !== false })
@@ -536,6 +538,8 @@ function renderProdutosBlocos(blocos, produtoBadge, todosProdutos) {
       prods.map(function (p) { return criarCardHTML(p, produtoBadge[p.id] || null) }).join('') +
       '</div></section>'
   }).join('')
+
+  main.innerHTML = secoesHtml || '<div class="search-empty">Nenhum produto disponível no momento</div>'
 
   main.addEventListener('click', manipularCliqueProdutos)
   requestAnimationFrame(function () { ajustarVerMais(main) })
