@@ -1,4 +1,4 @@
-var CACHE = 'tc-v4'
+var CACHE = 'tc-v5'
 var ASSETS = [
   './',
   './index.html',
